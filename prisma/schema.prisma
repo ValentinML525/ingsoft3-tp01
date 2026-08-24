@@ -1,0 +1,131 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum EstadoReserva {
+  SOLICITADA
+  PENDIENTE
+  PAGO_PARCIAL
+  PAGADA
+  CANCELADA
+}
+
+enum Role {
+  Administrador
+  Propietario
+  Usuario
+}
+
+model Reserva {
+  id               String        @id @default(uuid())
+  fechaInicio      DateTime
+  fechaFin         DateTime
+  cantidadPersonas Int
+  precioTotal      Float?
+  estado           EstadoReserva @default(PENDIENTE)
+  pagoParcial      Float?        @default(0)
+  observaciones    String?
+
+  unidad  Unidad  @relation(fields: [unidadId], references: [id], onDelete: Cascade)
+  cliente Cliente @relation(fields: [clienteId], references: [id])
+
+  fechaHoraCreacion  DateTime @default(now())
+  fechaActualizacion DateTime @updatedAt
+
+  unidadId  Int
+  clienteId Int
+}
+
+model Unidad {
+  id             Int                @id @default(autoincrement())
+  nombre         String
+  capacidad      Int
+  servicios      ServiciosXUnidad[]
+  precioPorNoche Float?
+  imagenes       Imagen[]
+  propiedadId    Int
+  propiedad      Propiedad          @relation(fields: [propiedadId], references: [id], onDelete: Cascade)
+  reservas       Reserva[]
+  slug           String
+  descripcion    String?
+  habilitada     Boolean            @default(true)
+}
+
+model Imagen {
+  id       Int    @id @default(autoincrement())
+  url      String
+  unidadId Int
+  unidad   Unidad @relation(fields: [unidadId], references: [id], onDelete: Cascade)
+}
+
+model Cliente {
+  id       Int       @id @default(autoincrement())
+  nombre   String
+  telefono String
+  email    String?
+  reserva  Reserva[]
+}
+
+model Propiedad {
+  id               Int           @id @default(autoincrement())
+  nombre           String
+  ubicacion        Ubicacion     @relation(fields: [ubicacionId], references: [id], onDelete: Cascade)
+  tipo             TipoPropiedad @relation(fields: [tipoPropiedadId], references: [id])
+  unidades         Unidad[]
+  ubicacionId      Int
+  tipoPropiedadId  Int
+  usuarioId        String
+  usuario          User          @relation(fields: [usuarioId], references: [id])
+  telefonoContacto String
+  slug             String
+}
+
+model Ubicacion {
+  id        Int         @id @default(autoincrement())
+  direccion String
+  latitud   Float
+  longitud  Float
+  ciudad    String
+  provincia String
+  Propiedad Propiedad[]
+}
+
+model TipoPropiedad {
+  id                        Int         @id @default(autoincrement())
+  nombre                    String
+  descripcion               String
+  contieneMultiplesUnidades Boolean
+  Propiedad                 Propiedad[]
+}
+
+model Servicio {
+  id       Int                @id @default(autoincrement())
+  nombre   String             @unique
+  icon     String
+  unidades ServiciosXUnidad[]
+}
+
+model ServiciosXUnidad {
+  unidad     Unidad   @relation(fields: [unidadId], references: [id], onDelete: Cascade)
+  unidadId   Int
+  servicio   Servicio @relation(fields: [servicioId], references: [id])
+  servicioId Int
+
+  @@id([unidadId, servicioId])
+}
+
+model User {
+  id            String      @id @default(uuid())
+  name          String
+  email         String      @unique
+  emailVerified DateTime?
+  password      String
+  role          Role        @default(Propietario)
+  image         String?
+  propiedades   Propiedad[]
+}
