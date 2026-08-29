@@ -17,11 +17,31 @@ services:
       timeout: 5s
       retries: 5
 
-  reservas-app:
+  reservas-backend:
     build:
       context: .
-      dockerfile: Dockerfile
-    container_name: reservas-app
+      dockerfile: Dockerfile.backend
+    container_name: reservas-backend
+    restart: always
+    ports:
+      - "4000:4000"
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - AUTH_SECRET=${AUTH_SECRET}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      - NEXTAUTH_URL=${NEXTAUTH_URL}
+      - AUTH_TRUST_HOST=${AUTH_TRUST_HOST}
+      - GEO_API_KEY=${GEO_API_KEY}
+      - PORT=4000
+    depends_on:
+      reservas-db:
+        condition: service_healthy
+
+  reservas-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: reservas-frontend
     restart: always
     ports:
       - "3000:3000"
@@ -31,9 +51,11 @@ services:
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
       - NEXTAUTH_URL=${NEXTAUTH_URL}
       - AUTH_TRUST_HOST=${AUTH_TRUST_HOST}
+      - NEXT_PUBLIC_API_URL=http://localhost:4000
+      - BACKEND_URL=http://reservas-backend:4000
+      - PORT=3000
     depends_on:
-      reservas-db:
-        condition: service_healthy
+      - reservas-backend
 
 volumes:
   postgres-data:

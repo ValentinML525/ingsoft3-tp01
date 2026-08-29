@@ -705,152 +705,640 @@ export const initialData = {
                 create: [{ url: '/imagenes/Exterior 9.jpeg' }],
             },
         },
+
+        // ====== NUEVAS CABAÑAS - ALTO LAS FLORES - Santa Rosa de Calamuchita (propiedadId: 1) ======
+        {
+            nombre: 'Aurora',
+            capacidad: 2,
+            descripcion:
+                'Cabaña Aurora - El refugio romántico perfecto en las Sierras de Córdoba. Diseñada para parejas, cuenta con calefacción central, televisor smart y WiFi de alta velocidad. Su decoración íntima y acogedora invita a la desconexión total. A pasos del arroyo local y rodeada de vegetación serrana autóctona. Ideal para aniversarios y escapadas de fin de semana.',
+            propiedadId: 1,
+            servicios: {
+                create: [
+                    { servicio: { connect: { id: 1 } } },
+                    { servicio: { connect: { id: 4 } } },
+                    { servicio: { connect: { id: 5 } } },
+                    { servicio: { connect: { id: 7 } } },
+                ],
+            },
+            precioPorNoche: 16000,
+            imagenes: {
+                create: [
+                    { url: 'https://www.altolasflores.com.ar/assets/img/portfolio/exterior3.webp' },
+                    { url: 'https://www.altolasflores.com.ar/assets/img/portfolio/interior.jpeg' },
+                    { url: 'https://www.altolasflores.com.ar/assets/img/portfolio/habitacion2.webp' },
+                ],
+            },
+        },
+        {
+            nombre: 'Cosmos',
+            capacidad: 4,
+            descripcion:
+                'Cabaña Cosmos - Perfecta para familias o grupos de amigos en Santa Rosa de Calamuchita. Con amplia galería cubierta con parrilla, pileta privada y espacio verde para los más chicos. Dos habitaciones equipadas, living comedor con chimenea y cocina completa. Rodeada de pinos y sauces, a 5 minutos de los mejores balnearios del Río Los Molinos. Mascotas bienvenidas con previo aviso.',
+            propiedadId: 1,
+            servicios: {
+                create: [
+                    { servicio: { connect: { id: 1 } } },
+                    { servicio: { connect: { id: 2 } } },
+                    { servicio: { connect: { id: 4 } } },
+                    { servicio: { connect: { id: 5 } } },
+                    { servicio: { connect: { id: 7 } } },
+                    { servicio: { connect: { id: 17 } } },
+                ],
+            },
+            precioPorNoche: 22000,
+            imagenes: {
+                create: [
+                    { url: 'https://www.altolasflores.com.ar/assets/img/portfolio/exterior3.webp' },
+                    { url: 'https://www.altolasflores.com.ar/assets/img/portfolio/pileta2.webp' },
+                    { url: 'https://www.altolasflores.com.ar/assets/img/portfolio/habitacion1.webp' },
+                ],
+            },
+        },
+        {
+            nombre: 'Estrella',
+            capacidad: 8,
+            descripcion:
+                'Cabaña Estrella - La opción grande para grupos numerosos o familias extensas. Tres habitaciones amplias, dos baños completos, cocina equipada, living con vista panorámica a las sierras y amplia terraza con parrilla y pileta climatizada. A solo 10 minutos del centro de Santa Rosa de Calamuchita, con acceso directo a senderos de trekking y ciclismo de montaña. Ideal para cumpleaños, aniversarios o reuniones familiares. Desayuno continental incluido.',
+            propiedadId: 1,
+            servicios: {
+                create: [
+                    { servicio: { connect: { id: 1 } } },
+                    { servicio: { connect: { id: 2 } } },
+                    { servicio: { connect: { id: 3 } } },
+                    { servicio: { connect: { id: 4 } } },
+                    { servicio: { connect: { id: 5 } } },
+                    { servicio: { connect: { id: 6 } } },
+                    { servicio: { connect: { id: 7 } } },
+                    { servicio: { connect: { id: 18 } } },
+                ],
+            },
+            precioPorNoche: 38000,
+            imagenes: {
+                create: [
+                    { url: 'https://www.altolasflores.com.ar/assets/img/portfolio/exterior3.webp' },
+                    { url: 'https://www.altolasflores.com.ar/assets/img/portfolio/interior.jpeg' },
+                    { url: 'https://www.altolasflores.com.ar/assets/img/portfolio/habitacion1.webp' },
+                    { url: 'https://www.altolasflores.com.ar/assets/img/portfolio/habitacion2.webp' },
+                    { url: 'https://www.altolasflores.com.ar/assets/img/portfolio/pileta2.webp' },
+                ],
+            },
+        },
+        {
+            nombre: 'Nebula',
+            capacidad: 3,
+            descripcion:
+                'Cabaña Nebula - Un espacio íntimo y moderno para tres personas en las Sierras de Córdoba. Habitación doble más cama adicional, baño con ducha de lluvia, sala de estar con chimenea eléctrica, cocina americana equipada y deck exterior con hamaca y fogonero. WiFi de alta velocidad disponible en toda la propiedad. Ubicación tranquila con vistas despejadas al cerro y el cielo estrellado de las Sierras.',
+            propiedadId: 1,
+            servicios: {
+                create: [
+                    { servicio: { connect: { id: 1 } } },
+                    { servicio: { connect: { id: 4 } } },
+                    { servicio: { connect: { id: 5 } } },
+                    { servicio: { connect: { id: 7 } } },
+                    { servicio: { connect: { id: 17 } } },
+                ],
+            },
+            precioPorNoche: 19000,
+            imagenes: {
+                create: [
+                    { url: 'https://www.altolasflores.com.ar/assets/img/portfolio/exterior3.webp' },
+                    { url: 'https://www.altolasflores.com.ar/assets/img/portfolio/interior.jpeg' },
+                ],
+            },
+        },
+        {
+            nombre: 'Galaxia',
+            capacidad: 6,
+            descripcion:
+                'Cabaña Galaxia - Diseñada con arquitectura serrana moderna que integra madera y piedra en cada rincón. Para seis personas, con pileta, parrilla techada, dos habitaciones en suite y amplio deck con vista al lago Los Molinos. Cuenta con estacionamiento cubierto para dos vehículos y acceso a actividades recreativas organizadas por el complejo. Servicio de limpieza incluido. Un lujo en plena naturaleza cordobesa.',
+            propiedadId: 1,
+            servicios: {
+                create: [
+                    { servicio: { connect: { id: 1 } } },
+                    { servicio: { connect: { id: 2 } } },
+                    { servicio: { connect: { id: 3 } } },
+                    { servicio: { connect: { id: 4 } } },
+                    { servicio: { connect: { id: 5 } } },
+                    { servicio: { connect: { id: 7 } } },
+                    { servicio: { connect: { id: 18 } } },
+                ],
+            },
+            precioPorNoche: 28000,
+            imagenes: {
+                create: [
+                    { url: 'https://www.altolasflores.com.ar/assets/img/portfolio/exterior3.webp' },
+                    { url: 'https://www.altolasflores.com.ar/assets/img/portfolio/pileta2.webp' },
+                    { url: 'https://www.altolasflores.com.ar/assets/img/portfolio/interior.jpeg' },
+                    { url: 'https://www.altolasflores.com.ar/assets/img/portfolio/habitacion1.webp' },
+                ],
+            },
+        },
+        {
+            nombre: 'Planeta',
+            capacidad: 5,
+            descripcion:
+                'Cabaña Planeta - El equilibrio perfecto entre confort y naturaleza para grupos de hasta 5 personas. Espaciosa y luminosa, con galería con parrilla y fogón, jardín con hamacas paraguayas y zona de juegos. Los niños disfrutan del gran espacio verde mientras los adultos se relajan en el deck principal. Admite mascotas con previo aviso. A minutos de los balnearios naturales del embalse Los Molinos. Ideal para familias que buscan actividades al aire libre.',
+            propiedadId: 1,
+            servicios: {
+                create: [
+                    { servicio: { connect: { id: 1 } } },
+                    { servicio: { connect: { id: 2 } } },
+                    { servicio: { connect: { id: 4 } } },
+                    { servicio: { connect: { id: 5 } } },
+                    { servicio: { connect: { id: 7 } } },
+                    { servicio: { connect: { id: 17 } } },
+                    { servicio: { connect: { id: 18 } } },
+                ],
+            },
+            precioPorNoche: 25000,
+            imagenes: {
+                create: [
+                    { url: 'https://www.altolasflores.com.ar/assets/img/portfolio/exterior3.webp' },
+                    { url: 'https://www.altolasflores.com.ar/assets/img/portfolio/interior.jpeg' },
+                    { url: 'https://www.altolasflores.com.ar/assets/img/portfolio/habitacion1.webp' },
+                ],
+            },
+        },
+        {
+            nombre: 'Cometa',
+            capacidad: 4,
+            descripcion:
+                'Cabaña Cometa - Ambiente acogedor y familiar en un entorno natural privilegiado de Santa Rosa de Calamuchita. Con dos dormitorios, baño completo, cocina equipada y sala de estar con chimenea. El amplio jardín con parrilla y mesa al aire libre es ideal para reuniones. Desayuno continental incluido en estadías de 3 o más noches. A 2 km del centro del pueblo, conectada por sendero peatonal entre los algarrobos y talas nativos.',
+            propiedadId: 1,
+            servicios: {
+                create: [
+                    { servicio: { connect: { id: 1 } } },
+                    { servicio: { connect: { id: 4 } } },
+                    { servicio: { connect: { id: 5 } } },
+                    { servicio: { connect: { id: 7 } } },
+                    { servicio: { connect: { id: 13 } } },
+                ],
+            },
+            precioPorNoche: 21000,
+            imagenes: {
+                create: [
+                    { url: 'https://www.altolasflores.com.ar/assets/img/portfolio/exterior3.webp' },
+                    { url: 'https://www.altolasflores.com.ar/assets/img/portfolio/habitacion2.webp' },
+                ],
+            },
+        },
+
+        // ====== NUEVAS CABAÑAS - EL DESCANSO - Cuesta Blanca (propiedadId: 2) ======
+        {
+            nombre: 'Violeta',
+            capacidad: 2,
+            descripcion:
+                'Cabaña Violeta - La opción romántica de El Descanso para parejas que buscan intimidad en la naturaleza de Cuesta Blanca. Con deck privado con vista al río, cocina equipada y spa de uso exclusivo del complejo. Perfecta para luna de miel, aniversarios o escapadas románticas. El entorno serrano y el sonido del río San Antonio hacen de esta cabaña un lugar único para desconectarse del mundo.',
+            propiedadId: 2,
+            servicios: {
+                create: [
+                    { servicio: { connect: { id: 1 } } },
+                    { servicio: { connect: { id: 2 } } },
+                    { servicio: { connect: { id: 7 } } },
+                    { servicio: { connect: { id: 8 } } },
+                ],
+            },
+            precioPorNoche: 14000,
+            imagenes: {
+                create: [
+                    { url: '/imagenes/Exterior 4.jpg' },
+                    { url: '/imagenes/Interior 2.jpg' },
+                ],
+            },
+        },
+        {
+            nombre: 'Azalea',
+            capacidad: 6,
+            descripcion:
+                'Cabaña Azalea - Amplia y moderna, diseñada para familias en Cuesta Blanca. Tres dormitorios con camas queen, dos baños completos, cocina totalmente equipada y living con chimenea a leña. Exterior con pileta climatizada, área de parrilla y juegos para niños. El complejo El Descanso ofrece actividades recreativas organizadas durante la temporada. A 300 metros del Río San Antonio para pesca y baño natural.',
+            propiedadId: 2,
+            servicios: {
+                create: [
+                    { servicio: { connect: { id: 1 } } },
+                    { servicio: { connect: { id: 2 } } },
+                    { servicio: { connect: { id: 4 } } },
+                    { servicio: { connect: { id: 5 } } },
+                    { servicio: { connect: { id: 7 } } },
+                    { servicio: { connect: { id: 8 } } },
+                    { servicio: { connect: { id: 17 } } },
+                ],
+            },
+            precioPorNoche: 30000,
+            imagenes: {
+                create: [
+                    { url: '/imagenes/Exterior 5.jpg' },
+                    { url: '/imagenes/Interior 5.jpg' },
+                    { url: '/imagenes/Interior 3.jpg' },
+                ],
+            },
+        },
+        {
+            nombre: 'Orquídea',
+            capacidad: 4,
+            descripcion:
+                'Cabaña Orquídea - Diseño contemporáneo con materiales naturales en pleno Valle de Punilla. Para 4 personas, con dos habitaciones, baño con bañera de inmersión, galería con hamacas y parrilla, jardín privado y pileta de uso exclusivo. WiFi de alta velocidad en toda la propiedad. A 5 minutos en auto de los balnearios de Cuesta Blanca y a 20 minutos de Córdoba Capital. Tarifa especial para estadías de semana completa.',
+            propiedadId: 2,
+            servicios: {
+                create: [
+                    { servicio: { connect: { id: 1 } } },
+                    { servicio: { connect: { id: 2 } } },
+                    { servicio: { connect: { id: 5 } } },
+                    { servicio: { connect: { id: 7 } } },
+                    { servicio: { connect: { id: 8 } } },
+                    { servicio: { connect: { id: 18 } } },
+                ],
+            },
+            precioPorNoche: 22000,
+            imagenes: {
+                create: [
+                    { url: '/imagenes/Exterior 6.jpg' },
+                    { url: '/imagenes/Interior 4.jpg' },
+                ],
+            },
+        },
+        {
+            nombre: 'Magnolia',
+            capacidad: 5,
+            descripcion:
+                'Cabaña Magnolia - El complemento perfecto para familias que viajan con niños o mascotas en Cuesta Blanca. Amplio jardín con juegos infantiles, zona de parrilla techada, pileta con sector little-splash para los más pequeños y acceso al spa compartido del complejo. Dos habitaciones más cama adicional, cocina completa y estacionamiento cubierto. Servicio de limpieza y cambio de toallas incluidos diariamente.',
+            propiedadId: 2,
+            servicios: {
+                create: [
+                    { servicio: { connect: { id: 1 } } },
+                    { servicio: { connect: { id: 2 } } },
+                    { servicio: { connect: { id: 4 } } },
+                    { servicio: { connect: { id: 5 } } },
+                    { servicio: { connect: { id: 7 } } },
+                    { servicio: { connect: { id: 8 } } },
+                    { servicio: { connect: { id: 17 } } },
+                    { servicio: { connect: { id: 18 } } },
+                ],
+            },
+            precioPorNoche: 26000,
+            imagenes: {
+                create: [
+                    { url: '/imagenes/Exterior 7.jpg' },
+                    { url: '/imagenes/Interior 5.jpg' },
+                    { url: '/imagenes/Interior 2.jpg' },
+                ],
+            },
+        },
+        {
+            nombre: 'Lavanda',
+            capacidad: 3,
+            descripcion:
+                'Cabaña Lavanda - Una opción íntima y acogedora para tres personas en Cuesta Blanca. Con habitación principal, cama adicional en altillo, baño con ducha de efecto lluvia, kitchenette y deck exterior con vista al cerro. El aroma a lavanda natural del jardín crea un ambiente único de relajación. Incluye acceso al spa y pileta del complejo El Descanso. Ideal para estadías de descanso y conexión con la naturaleza serrana.',
+            propiedadId: 2,
+            servicios: {
+                create: [
+                    { servicio: { connect: { id: 1 } } },
+                    { servicio: { connect: { id: 2 } } },
+                    { servicio: { connect: { id: 5 } } },
+                    { servicio: { connect: { id: 7 } } },
+                    { servicio: { connect: { id: 8 } } },
+                ],
+            },
+            precioPorNoche: 16000,
+            imagenes: {
+                create: [
+                    { url: '/imagenes/Exterior 4.jpg' },
+                    { url: '/imagenes/Interior 3.jpg' },
+                ],
+            },
+        },
+        {
+            nombre: 'Clavel',
+            capacidad: 8,
+            descripcion:
+                'Cabaña Clavel - La cabaña más grande y completa de El Descanso, pensada para grupos numerosos o familias extendidas. Con cuatro habitaciones, dos baños completos más toilette, cocina gourmet, comedor para 10 personas y quincho privado con parrilla y horno de barro. Piscina de uso exclusivo con solarium, spa, gimnasio y sala de juegos. Desayuno continental incluido todos los días. Personal de servicio disponible a demanda.',
+            propiedadId: 2,
+            servicios: {
+                create: [
+                    { servicio: { connect: { id: 1 } } },
+                    { servicio: { connect: { id: 2 } } },
+                    { servicio: { connect: { id: 3 } } },
+                    { servicio: { connect: { id: 4 } } },
+                    { servicio: { connect: { id: 5 } } },
+                    { servicio: { connect: { id: 6 } } },
+                    { servicio: { connect: { id: 7 } } },
+                    { servicio: { connect: { id: 8 } } },
+                    { servicio: { connect: { id: 9 } } },
+                    { servicio: { connect: { id: 17 } } },
+                    { servicio: { connect: { id: 18 } } },
+                ],
+            },
+            precioPorNoche: 40000,
+            imagenes: {
+                create: [
+                    { url: '/imagenes/Exterior 5.jpg' },
+                    { url: '/imagenes/Interior 5.jpg' },
+                    { url: '/imagenes/Interior 4.jpg' },
+                    { url: '/imagenes/Interior 3.jpg' },
+                ],
+            },
+        },
+
+        // ====== NUEVAS CABAÑAS - CLAROS DEL BOSQUE - Capilla del Monte (propiedadId: 3) ======
+        {
+            nombre: 'Sauce',
+            capacidad: 4,
+            descripcion:
+                'Cabaña Sauce - Con vista privilegiada al Cerro Uritorco y ubicada en el mágico entorno de Capilla del Monte. Para 4 personas, dos habitaciones, baño completo, living con salamandra, cocina equipada y galería con parrilla. El complejo Claros del Bosque ofrece actividades guiadas de trekking, yoga al amanecer y meditación entre las sierras. Admite mascotas con previo aviso. WiFi disponible en toda la propiedad.',
+            propiedadId: 3,
+            servicios: {
+                create: [
+                    { servicio: { connect: { id: 3 } } },
+                    { servicio: { connect: { id: 4 } } },
+                    { servicio: { connect: { id: 5 } } },
+                    { servicio: { connect: { id: 7 } } },
+                    { servicio: { connect: { id: 9 } } },
+                    { servicio: { connect: { id: 17 } } },
+                ],
+            },
+            precioPorNoche: 32000,
+            imagenes: {
+                create: [
+                    { url: '/imagenes/Exterior 8.jpeg' },
+                    { url: '/imagenes/Exterior 2.jpg' },
+                ],
+            },
+        },
+        {
+            nombre: 'Ombú',
+            capacidad: 2,
+            descripcion:
+                'Cabaña Ombú - La más íntima de Claros del Bosque, diseñada para parejas que buscan reconectarse con la naturaleza en Capilla del Monte. Con ventanales al bosque nativo, bañera de inmersión, sala de estar con chimenea, deck privado y vista directa a las estrellas. El entorno de Capilla del Monte es reconocido mundialmente por su energía especial y cielos despejados ideales para la contemplación nocturna y el misticismo serrano.',
+            propiedadId: 3,
+            servicios: {
+                create: [
+                    { servicio: { connect: { id: 3 } } },
+                    { servicio: { connect: { id: 4 } } },
+                    { servicio: { connect: { id: 5 } } },
+                    { servicio: { connect: { id: 7 } } },
+                    { servicio: { connect: { id: 17 } } },
+                ],
+            },
+            precioPorNoche: 28000,
+            imagenes: {
+                create: [
+                    { url: '/imagenes/Exterior 2.jpg' },
+                    { url: '/imagenes/Exterior 8.jpeg' },
+                ],
+            },
+        },
+        {
+            nombre: 'Lapacho',
+            capacidad: 6,
+            descripcion:
+                'Cabaña Lapacho - Amplia y confortable para grupos de hasta 6 personas en las Sierras de Punilla. Tres dormitorios con camas premium, dos baños, cocina integral equipada, comedor cubierto y amplio patio con parrilla y fogón. El lapacho en flor que rodea la propiedad crea un entorno único durante la primavera. Acceso a senderos de montaña directamente desde la cabaña. Desayuno incluido en temporada alta con productos regionales.',
+            propiedadId: 3,
+            servicios: {
+                create: [
+                    { servicio: { connect: { id: 3 } } },
+                    { servicio: { connect: { id: 4 } } },
+                    { servicio: { connect: { id: 5 } } },
+                    { servicio: { connect: { id: 6 } } },
+                    { servicio: { connect: { id: 7 } } },
+                    { servicio: { connect: { id: 9 } } },
+                    { servicio: { connect: { id: 17 } } },
+                    { servicio: { connect: { id: 18 } } },
+                ],
+            },
+            precioPorNoche: 40000,
+            imagenes: {
+                create: [
+                    { url: '/imagenes/Exterior 3.jpeg' },
+                    { url: '/imagenes/Exterior 8.jpeg' },
+                    { url: '/imagenes/Exterior 9.jpeg' },
+                ],
+            },
+        },
+        {
+            nombre: 'Espinillo',
+            capacidad: 3,
+            descripcion:
+                'Cabaña Espinillo - Acogedora cabaña para tres personas en el entorno místico de Capilla del Monte. Habitación principal con cama matrimonial y altillo con cama individual, baño completo, cocina equipada y sala de estar con vista al jardín. Incluye bicicletas para recorrer los alrededores y mapa de senderos del complejo. A 3 km del centro de Capilla del Monte y a 4 km del sitio arqueológico Ongamira. Admite mascotas pequeñas.',
+            propiedadId: 3,
+            servicios: {
+                create: [
+                    { servicio: { connect: { id: 3 } } },
+                    { servicio: { connect: { id: 4 } } },
+                    { servicio: { connect: { id: 5 } } },
+                    { servicio: { connect: { id: 7 } } },
+                    { servicio: { connect: { id: 13 } } },
+                    { servicio: { connect: { id: 17 } } },
+                ],
+            },
+            precioPorNoche: 29000,
+            imagenes: {
+                create: [
+                    { url: '/imagenes/Exterior 3.jpeg' },
+                    { url: '/imagenes/Exterior 2.jpg' },
+                ],
+            },
+        },
+        {
+            nombre: 'Churqui',
+            capacidad: 5,
+            descripcion:
+                'Cabaña Churqui - Espacio moderno y confortable para 5 personas entre las sierras de Capilla del Monte. Con dos habitaciones y cama adicional en sala de estar, baño con ducha de lluvia, cocina equipada y amplia galería cubierta con parrilla y horno de barro. El complejo Claros del Bosque dispone de gimnasio al aire libre, cancha de tenis y piscina de uso compartido. Alquiler de bicicletas disponible en recepción.',
+            propiedadId: 3,
+            servicios: {
+                create: [
+                    { servicio: { connect: { id: 3 } } },
+                    { servicio: { connect: { id: 4 } } },
+                    { servicio: { connect: { id: 5 } } },
+                    { servicio: { connect: { id: 7 } } },
+                    { servicio: { connect: { id: 9 } } },
+                    { servicio: { connect: { id: 17 } } },
+                    { servicio: { connect: { id: 18 } } },
+                ],
+            },
+            precioPorNoche: 38000,
+            imagenes: {
+                create: [
+                    { url: '/imagenes/Exterior 8.jpeg' },
+                    { url: '/imagenes/Exterior 9.jpeg' },
+                    { url: '/imagenes/Exterior 3.jpeg' },
+                ],
+            },
+        },
+        {
+            nombre: 'Molle',
+            capacidad: 8,
+            descripcion:
+                'Cabaña Molle - La joya de Claros del Bosque en Capilla del Monte. Para ocho personas, con cuatro habitaciones, tres baños, cocina de diseño totalmente equipada, quincho con parrilla y horno de barro, piscina exclusiva con calefacción y amplio solarium. Sala de juegos para niños, gimnasio equipado y servicio de desayuno incluido con productos artesanales de la zona. Rodeada de molle serrano centenario, ofrece una experiencia de lujo en perfecta armonía con la naturaleza de Córdoba.',
+            propiedadId: 3,
+            servicios: {
+                create: [
+                    { servicio: { connect: { id: 3 } } },
+                    { servicio: { connect: { id: 4 } } },
+                    { servicio: { connect: { id: 5 } } },
+                    { servicio: { connect: { id: 6 } } },
+                    { servicio: { connect: { id: 7 } } },
+                    { servicio: { connect: { id: 9 } } },
+                    { servicio: { connect: { id: 17 } } },
+                    { servicio: { connect: { id: 18 } } },
+                    { servicio: { connect: { id: 19 } } },
+                ],
+            },
+            precioPorNoche: 50000,
+            imagenes: {
+                create: [
+                    { url: '/imagenes/Exterior 9.jpeg' },
+                    { url: '/imagenes/Exterior 8.jpeg' },
+                    { url: '/imagenes/Exterior 3.jpeg' },
+                    { url: '/imagenes/Exterior 2.jpg' },
+                ],
+            },
+        },
     ],
 
     clientes: [
         {
             nombre: 'Chandler Bing',
-            telefono: '9093829831',
+            telefono: '+542645208135',
             email: 'chandler.bing@gmail.com',
         },
         {
             nombre: 'Monica Geller',
-            telefono: '9093859831',
+            telefono: '+542645208135',
             email: 'monica.geller@gmail.com',
         },
         {
             nombre: 'Ross Geller',
-            telefono: '9093869831',
+            telefono: '+542645208135',
             email: 'ross.geller@gmail.com',
         },
         {
             nombre: 'Rachel Green',
-            telefono: '9093879831',
+            telefono: '+542645208135',
             email: 'rachel.green@gmail.com',
         },
         {
             nombre: 'Joey Tribbiani',
-            telefono: '9093889831',
+            telefono: '+542645208135',
             email: 'joey.tribbiani@gmail.com',
         },
         {
             nombre: 'Phoebe Buffay',
-            telefono: '9093899831',
+            telefono: '+542645208135',
             email: 'phoebe.buffay@gmail.com',
         },
         {
             nombre: 'Ted Mosby',
-            telefono: '9093909831',
+            telefono: '+542645208135',
             email: 'ted.mosby@gmail.com',
         },
         {
             nombre: 'Robin Scherbatsky',
-            telefono: '9093919831',
+            telefono: '+542645208135',
             email: 'robin.scherbatsky@gmail.com',
         },
         {
             nombre: 'Barney Stinson',
-            telefono: '9093929831',
+            telefono: '+542645208135',
             email: 'barney.stinson@gmail.com',
         },
         {
             nombre: 'Lily Aldrin',
-            telefono: '9093939831',
+            telefono: '+542645208135',
             email: 'lily.aldrin@gmail.com',
         },
         {
             nombre: 'Marshall Eriksen',
-            telefono: '9093949831',
+            telefono: '+542645208135',
             email: 'marshall.eriksen@gmail.com',
         },
         {
             nombre: 'Michael Scott',
-            telefono: '9093959831',
+            telefono: '+542645208135',
             email: 'michael.scott@gmail.com',
         },
         {
             nombre: 'Dwight Schrute',
-            telefono: '9093969831',
+            telefono: '+542645208135',
             email: 'dwight.schrute@gmail.com',
         },
         {
             nombre: 'Jim Halpert',
-            telefono: '9093979831',
+            telefono: '+542645208135',
             email: 'jim.halpert@gmail.com',
         },
         {
             nombre: 'Pam Beesly',
-            telefono: '9093989831',
+            telefono: '+542645208135',
             email: 'pam.beesly@gmail.com',
         },
         {
             nombre: 'Leslie Knope',
-            telefono: '9093999831',
+            telefono: '+542645208135',
             email: 'leslie.knope@gmail.com',
         },
         {
             nombre: 'Ron Swanson',
-            telefono: '9094009831',
+            telefono: '+542645208135',
             email: 'ron.swanson@gmail.com',
         },
         {
             nombre: 'Tom Haverford',
-            telefono: '9094019831',
+            telefono: '+542645208135',
             email: 'tom.haverford@gmail.com',
         },
         {
             nombre: 'Ann Perkins',
-            telefono: '9094029831',
+            telefono: '+542645208135',
             email: 'ann.perkins@gmail.com',
         },
         {
             nombre: 'Andy Dwyer',
-            telefono: '9094039831',
+            telefono: '+542645208135',
             email: 'andy.dwyer@gmail.com',
         },
         {
             nombre: 'April Ludgate',
-            telefono: '9094049831',
+            telefono: '+542645208135',
             email: 'april.ludgate@gmail.com',
         },
         {
             nombre: 'Ben Wyatt',
-            telefono: '9094059831',
+            telefono: '+542645208135',
             email: 'ben.wyatt@gmail.com',
         },
         {
             nombre: 'Chris Traeger',
-            telefono: '9094069831',
+            telefono: '+542645208135',
             email: 'chris.traeger@gmail.com',
         },
         {
             nombre: 'Donna Meagle',
-            telefono: '9094079831',
+            telefono: '+542645208135',
             email: 'donna.meagle@gmail.com',
         },
         {
             nombre: 'Jerry Gergich',
-            telefono: '9094089831',
+            telefono: '+542645208135',
             email: 'jerry.gergich@gmail.com',
         },
         {
             nombre: 'Laura Mirales',
-            telefono: '9094089831',
+            telefono: '+542645208135',
             email: 'laura.mirales@gmail.com',
         },
         {
             nombre: 'Klaus Mikaelson',
-            telefono: '9094089831',
+            telefono: '+542645208135',
             email: 'klaus.mikaelson@gmail.com',
         },
         {
             nombre: 'Damon Salvatore',
-            telefono: '9094089831',
+            telefono: '+542645208135',
             email: 'damon.salvatore@gmail.com',
         },
         {
             nombre: 'Stefan Salvatore',
-            telefono: '9094089831',
+            telefono: '+542645208135',
             email: 'stefan.salvatore@gmail.com',
         },
 
