@@ -1,17 +1,18 @@
-Por qué Git no pudo resolver el conflicto solo — y qué habría tenido que pasar para que nunca apareciera.
-    
-    Git no sabe cual de los dos cambios es el correcto o si ambos estan bien y solo hay que moverlos a otra linea, por lo tanto no hay forma que resuelva este tipo de conflictos automaticamente, requiere de una revision humana para poder resolverlo.
-    Para que no hubiera aparecido un conflicto hubieramos tenido que modificar distintas lineas del archivo o que la version B sea una "subrama" de A y no de main.
+# Decisiones TP1 — Git
 
-Qué problemas encontraste y cómo los solucionaste. Los tropiezos bien contados valen más que un camino perfecto: son los que demuestran que entendiste.
+## Por qué Git no pudo resolver el conflicto solo
 
-    El unico problema con el que me encontre es el tema de usar mas de una cuenta configurada de github en mi notebook porlo que a veces me tiraba error al hacer push por falta de permisos, y lo solucione agrengando un SSH de la cuenta de la facu y cambiando la autenticacion del repo de HTTPS a SSH.
+Git no sabe cuál de los dos cambios es el correcto o si ambos están bien y solo hay que moverlos a otra línea; por lo tanto, no hay forma de que resuelva este tipo de conflictos automáticamente y requiere de una revisión humana para poder resolverlo.
 
-Declaración de uso de IA: qué partes hiciste con ayuda de inteligencia artificial y cómo verificaste lo que te devolvió (§ Uso de IA del enunciado).
+Para que no hubiera aparecido un conflicto, hubiéramos tenido que modificar distintas líneas del archivo o que la versión B sea una rama derivada de A y no directamente de `main`.
 
-    No utilice herramientas de IA para la resolucion de este trabajo practico, fue un TP1 muy sencillo que no ameritaba usar herramientas de IA para su resolucion.
+## Problemas encontrados y cómo los resolviste
 
----
+El único problema con el que me encontré fue el manejo de más de una cuenta configurada de GitHub en mi notebook, por lo que a veces me tiraba error al hacer push por falta de permisos. Lo solucioné agregando una clave SSH correspondiente a la cuenta de la facultad y cambiando la autenticación del repositorio de HTTPS a SSH.
+
+## Declaración de uso de IA
+
+No utilicé herramientas de IA para la resolución de este trabajo práctico, ya que fue un TP muy sencillo que no ameritaba el uso de estas herramientas.
 
 # Decisiones TP2 — Contenerización
 
@@ -32,7 +33,8 @@ Elegí una aplicación de gestión de reservas que había desarrollado hace unos
 
 ## Problemas encontrados y cómo los resolviste
 
-- **Prisma en Alpine**: al usar `node:20-alpine`, Prisma requería las librerías `openssl` y `libc6-compat` que no vienen instaladas por defecto. Se resolvió agregando `RUN apk add --no-cache openssl libc6-compat` en ambas etapas de los Dockerfiles.
-- **Standalone output**: Next.js con `output: 'standalone'` genera un servidor autocontenido, pero no incluye la carpeta `public` ni `static` automáticamente. Se resolvió copiando explícitamente esas carpetas en la etapa `runner` de cada Dockerfile.
-- **Variables de entorno hardcodeadas**: el docker-compose original tenía las credenciales escritas directamente. Se refactorizó para usar `${VARIABLE}` y un archivo `.env.example` como plantilla.
-- **Separación de puertos entre contenedores**: Para evitar colisiones y permitir la ejecución simultánea de los servicios de frontend y backend, se asignó el puerto `3000` para `reservas-frontend` y el puerto `4000` para `reservas-backend`, estableciendo la dependencia `depends_on` correspondiente en Docker Compose.
+- **Acoplamiento de Frontend y Backend en Next.js**: Al estar desarrollada con Next.js (framework fullstack), tanto la interfaz visual (frontend) como los endpoints de la API (`/api/*`) residían originalmente juntos en el mismo proyecto y servidor monolítico. Para cumplir con los requerimientos del trabajo práctico de tener frontend y backend contenerizados por separado, tuve que desacoplar la arquitectura en dos imágenes Docker independientes (`Dockerfile.backend` y `Dockerfile.frontend`), exponiéndolas en puertos distintos (3000 para frontend y 4000 para backend) y configurando variables de entorno de red para que el frontend consuma los servicios del backend a través de Docker Compose.
+
+## Declaración de uso de IA
+
+Se uso la IA para el formateo de los archivos, refactorizacion de codigo, resolucion de los problemas encontrado y para la separacion del front y backend.
