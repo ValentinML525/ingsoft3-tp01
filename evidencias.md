@@ -18,3 +18,25 @@ Observamos el conflicto : Ambas ramas (version A y B) modificaron la misma linea
 ![Evidencia 4](./Screenshot%202026-08-11%20203928.png)
 
 Vemos que creamos de forma exitosa el tag de la version 1.0.0
+
+# Evidencias — TP2
+
+## Evidencia 1
+![Evidencia 1](./Screenshot%202026-08-23%20215056.png)
+
+docker compose up -d
+
+## Evidencia 2
+![Evidencia 2](./Screenshot%202026-08-23%20215241.png)
+
+docker compose up/down
+
+## Evidencia 3
+![Evidencia 3](./Screenshot%202026-08-23%20220039.png)
+
+Tamaño de imagen final 216 mb vs imagen de sdk 136 mb
+
+## Evidencia 4
+![Evidencia 4](./Screenshot%202026-08-23%20215539.png)
+
+Imagenes en registry

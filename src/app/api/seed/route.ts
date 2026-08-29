@@ -37,8 +37,8 @@ export async function GET(request: Request) {
 
 	const user1 = await prisma.user.create({
 		data: {
-			email: 'pbonetto@gmail.com',
-			name: 'Patricio Bonetto',
+			email: 'vlanfranchi@gmail.com',
+			name: 'Valentin Lanfranchi',
 			password: bcryptjs.hashSync('123456'),
 			role: Role.Propietario,
 			propiedades: {
@@ -47,7 +47,7 @@ export async function GET(request: Request) {
 						nombre: 'Alto las flores',
 						ubicacionId: 1,
 						tipoPropiedadId: 2,
-						telefonoContacto: '3517642289',
+						telefonoContacto: '+542645208135',
 						slug: 'alto-las-flores',
 					},
 				],
@@ -57,8 +57,8 @@ export async function GET(request: Request) {
 
 	const user2 = await prisma.user.create({
 		data: {
-			email: 'mmarochi@gmail.com',
-			name: 'Marcelo Marochi',
+			email: 'vmoyano@gmail.com',
+			name: 'Valentin Moyano',
 			password: bcryptjs.hashSync('123456'),
 			role: Role.Propietario,
 			propiedades: {
@@ -67,14 +67,14 @@ export async function GET(request: Request) {
 						nombre: 'El Descanso',
 						ubicacionId: 2,
 						tipoPropiedadId: 2,
-						telefonoContacto: '3517660421',
+						telefonoContacto: '+542645208135',
 						slug: 'el-descanso',
 					},
 					{
 						nombre: 'Claros del Bosque',
 						ubicacionId: 3,
 						tipoPropiedadId: 2,
-						telefonoContacto: '3517660421',
+						telefonoContacto: '+542645208135',
 						slug: 'claros-del-bosque',
 					},
 				],
