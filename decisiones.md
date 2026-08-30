@@ -38,3 +38,43 @@ Elegí una aplicación de gestión de reservas que había desarrollado hace unos
 ## Declaración de uso de IA
 
 Se uso la IA para el formateo de los archivos, refactorizacion de codigo, resolucion de los problemas encontrado y para la separacion del front y backend.
+
+# Decisiones TP3 — Metodologías Ágiles
+
+## Análisis y redefinición de la Historia de Usuario
+
+En primer lugar, crear una tabla en la base de datos es una tarea técnica que no aporta valor de negocio directo ni perceptible para el cliente/usuario final, por lo que no corresponde plantearla como una Historia de Usuario (HU), sino como una tarea técnica derivada de una necesidad funcional. No obstante, asumiendo el escenario en el que deba formularse como HU, la propuesta original presentaba inconsistencias:
+
+- **Estructura**: La plantilla *"Como... Quiero... Para..."* corresponde al cuerpo de la descripción de la historia y no a su título. El título debe ser conciso y orientador.
+- **Criterios de aceptación**: Carecía por completo de criterios de aceptación (*acceptance criteria*), lo cual es crítico dado que el desarrollador no tendría forma de determinar objetivamente cuándo la historia está finalizada (*Definition of Done*).
+
+### Reformulación propuesta
+
+- **Título**: Tabla de usuarios
+- **Descripción**: *Como desarrollador, quiero crear la tabla `usuarios` en la base de datos para almacenar y gestionar de forma persistente y segura los datos de los usuarios.*
+- **Criterios de aceptación**:
+  - [ ] **Estructura de la tabla**: Definir la tabla `usuarios` con los campos `id` (PK, auto-incremental o UUID), `nombre`, `email`, `password_hash`, `rol`, `estado`, `created_at` y `updated_at`.
+  - [ ] **Campos obligatorios**: Configurar restricción `NOT NULL` en `nombre`, `email`, `password_hash`, `rol` y `estado`.
+  - [ ] **Unicidad de email**: Aplicar restricción `UNIQUE` sobre la columna `email` para evitar duplicados.
+  - [ ] **Seguridad de contraseñas**: Asegurar que el campo `password_hash` almacene contraseñas cifradas mediante algoritmos seguros (ej. BCrypt, Argon2), nunca en texto plano.
+  - [ ] **Valores por defecto**: Asignar valores por defecto para `rol` (ej. `'user'`) y `estado` (ej. `'activo'`).
+  - [ ] **Auditoría temporal**: Configurar `created_at` con la fecha y hora actual de inserción (`CURRENT_TIMESTAMP`) y `updated_at` para actualizarse en modificaciones.
+  - [ ] **Script de migración**: Proveer un script de migración versionado y ejecutable que soporte creación (`up`) y reversión (`down` / rollback).
+  - [ ] **Validación de errores**: Validar que la base de datos rechace inserciones con emails duplicados o campos requeridos nulos.
+
+## Duración del sprint y justificación
+
+Generalmente en la industria se adoptan sprints de 2 semanas de duración. Sin embargo, para el desarrollo de la materia se definió utilizar **sprints de 1 semana**, dado que la cursada presenta una nueva entrega y trabajo práctico semanalmente, haciendo necesario trabajar con ciclos cortos, iteraciones rápidas y feedback continuo al cierre de cada semana.
+
+## Límite de trabajo en curso (WIP)
+
+Se configuró un límite de **2 tareas en simultáneo** para el estado *In Progress* en GitHub Projects. Al tratarse de un trabajo individual, establecer un WIP bajo evita la dispersión y la sobrecarga de cambios abiertos, promoviendo avanzar y completar tareas de principio a fin con commits pequeños, continuos y frecuentes en lugar de integraciones grandes y esporádicas.
+
+## Problemas encontrados y cómo los resolviste
+
+No se presentaron dificultades técnicas ni bloqueos durante la configuración del tablero ni en la carga de tareas en GitHub Projects.
+
+## Declaración de uso de IA
+
+No se utilizó IA para la configuración y gestión del proyecto en GitHub Projects, ya que todo el flujo de trabajo se realizó de forma directa sobre la interfaz web de GitHub. Únicamente se recurrió a la asistencia de IA para el formateo de este documento de decisiones.
+
