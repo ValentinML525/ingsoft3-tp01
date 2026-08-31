@@ -78,3 +78,37 @@ No se presentaron dificultades técnicas ni bloqueos durante la configuración d
 
 No se utilizó IA para la configuración y gestión del proyecto en GitHub Projects, ya que todo el flujo de trabajo se realizó de forma directa sobre la interfaz web de GitHub. Únicamente se recurrió a la asistencia de IA para el formateo de este documento de decisiones.
 
+# Decisiones TP4 — CI: Pipelines as Code
+
+## Estructura elegida del pipeline
+
+Se definieron **dos jobs independientes** en el workflow: `build-backend` y `build-frontend`. Cada uno corre en su propio runner de Ubuntu y construye la imagen correspondiente usando su Dockerfile (`Dockerfile.backend` y `Dockerfile.frontend`). Al no existir dependencia entre ellos, GitHub Actions los ejecuta **en paralelo**, reduciendo el tiempo total de la corrida.
+
+La app está desarrollada en Next.js como monorepo: el frontend y el backend comparten el mismo código base pero se empaquetan como imágenes independientes con configuración de puertos distinta. Por eso ambos jobs usan `context: .` (raíz del repositorio) y apuntan al Dockerfile correspondiente con la clave `file:`.
+
+## Qué cachea el pipeline y qué pasa si el cache desaparece
+
+El cache almacena las **capas intermedias de Docker** (resultado de cada instrucción `RUN`, `COPY`, `ADD` del Dockerfile) en el almacén de GitHub Actions (`type=gha`). Si una capa no cambió respecto a la corrida anterior, se reutiliza directamente — en el log se ve la palabra `CACHED` junto a ese step.
+
+Las capas que más se reutilizan en esta app son las de instalación de dependencias (`npm ci`), ya que `package.json` y `package-lock.json` cambian con menor frecuencia que el código fuente. La capa de `COPY . .` y las de build (`npm run build`) se invalidan casi siempre que hay un commit de código.
+
+Cada job tiene su propio `scope` (`scope=backend` y `scope=frontend`) para evitar que se pisen mutuamente en el almacén compartido.
+
+El cache **puede desaparecer** en cualquier momento (por límite de espacio de GitHub, por expiración, o tras un período sin uso). El pipeline funciona exactamente igual sin él — sólo tarda más, porque reconstruye todas las capas desde cero. Si fallara sin cache, significaría que había una dependencia escondida, no que el cache era necesario.
+
+## Por qué el pipeline construye con el Dockerfile en vez de compilar por su cuenta
+
+Si el pipeline compilara directamente con `npm run build` o instalando Node en el runner, existirían **dos definiciones de build** distintas: la del runner y la del Dockerfile. Con el tiempo estas divergen inevitablemente (versiones de Node, variables de entorno, dependencias del sistema), y el pipeline estaría verificando una cosa distinta de lo que después se despliega.
+
+Al usar el Dockerfile del TP2, el pipeline verifica exactamente el mismo proceso de construcción que se usa en producción. Un build verde en CI garantiza que la imagen que se va a desplegar funciona.
+
+## Problemas encontrados y cómo los resolviste
+
+- **Contexto del Dockerfile**: como ambos Dockerfiles hacen `COPY . .` y necesitan los archivos de la raíz, el `context` del job tiene que ser `.` (raíz del repo) en vez de un subdirectorio. Se especifica el Dockerfile con la clave `file:` de `docker/build-push-action`.
+- **El job `build` del TP3**: el workflow anterior tenía un único job llamado `build` que solo hacía checkout. Fue reemplazado completamente por `build-backend` y `build-frontend`. El required status check del gate debe apuntar a estos nuevos nombres.
+
+## Declaración de uso de IA
+
+Se utilizó IA (Antigravity) para generar el archivo `ci.yml` y esta sección de `decisiones.md`, adaptando el template de la guía a la estructura particular del proyecto (monorepo Next.js con Dockerfiles en la raíz). Se verificó el resultado revisando que el contexto y las rutas de los Dockerfiles fueran correctas para esta app.
+
+
