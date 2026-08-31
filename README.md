@@ -1,3 +1,5 @@
+[![CI](https://github.com/ValentinML525/ingsoft3-tp01/actions/workflows/ci.yml/badge.svg)](https://github.com/ValentinML525/ingsoft3-tp01/actions/workflows/ci.yml)
+
 # Reservas App — Sistema de Reservas
 
 Aplicación web de gestión de reservas construida con Next.js, Prisma y PostgreSQL.
