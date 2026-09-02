@@ -18,7 +18,14 @@ No utilicé herramientas de IA para la resolución de este trabajo práctico, ya
 
 ## Qué app elegiste y por qué
 
-Elegí una aplicación de gestión de reservas que había desarrollado hace unos años. La app cuenta con backend y frontend integrados en Next.js, y utiliza PostgreSQL como base de datos, por lo que cumple con los tres requisitos de la consigna (backend + frontend + base de datos). Al ser un proyecto que ya conocía en profundidad, me permitió enfocarme en la contenerización sin perder tiempo resolviendo problemas de la aplicación en sí.
+Elegí una aplicación de gestión de reservas que había desarrollado hace unos años. La app cumple con los cuatro criterios exigidos por la consigna:
+
+1. **Backend** (capa de API): endpoints REST bajo `/api/*` gestionados por Next.js en modo servidor.
+2. **Frontend** (capa de presentación): interfaz web interactiva renderizada desde un contenedor separado en el puerto 3000.
+3. **Base de datos relacional persistente**: PostgreSQL 16.2 con un volumen Docker que sobrevive a reinicios del contenedor.
+4. **Arquitectura multicapa desacoplada**: los tres servicios se comunican a través de la red interna de Compose, sin compartir proceso ni sistema de archivos.
+
+Al ser un proyecto que ya conocía en profundidad, me permitió enfocarme en la contenerización sin perder tiempo resolviendo problemas de la aplicación en sí.
 
 ## Decisiones de contenerización
 
@@ -30,6 +37,41 @@ Elegí una aplicación de gestión de reservas que había desarrollado hace unos
 - **Multi-stage build**: Ambos Dockerfiles (`Dockerfile.backend` y `Dockerfile.frontend`) cuentan con dos etapas (`builder` y `runner`), copiando únicamente los artefactos necesarios (`standalone`, `.next/static`, `public`, Prisma client), reduciendo sustancialmente el tamaño de las imágenes finales.
 - **Persistencia**: la base de datos PostgreSQL persiste sus datos mediante un volumen de Docker (`postgres-data`). Los datos de las aplicaciones web son stateless; se regeneran en cada build.
 - **Secretos y Conectividad**: todas las credenciales, URLs de interconexión (`NEXT_PUBLIC_API_URL`, `BACKEND_URL`, `DATABASE_URL`) y configuraciones sensibles se externalizaron al archivo `.env`, consumido por `docker-compose.yml` mediante interpolación de variables.
+
+## `healthcheck` vs `depends_on` simple
+
+`depends_on` sin condición sólo espera a que el proceso del contenedor arranque (PID 1 en ejecución), pero no verifica si el servicio interno está listo para aceptar conexiones. En el caso de PostgreSQL, el proceso puede iniciar pero la base de datos tarda algunos segundos más en aceptar clientes.
+
+Por eso se configuró un `healthcheck` en el servicio `reservas-db`:
+
+```yaml
+healthcheck:
+  test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+  interval: 5s
+  timeout: 5s
+  retries: 5
+```
+
+Y en los servicios dependientes se usa `condition: service_healthy`:
+
+```yaml
+depends_on:
+  reservas-db:
+    condition: service_healthy
+```
+
+De esta forma, `reservas-backend` sólo arranca cuando Postgres ya está listo para aceptar conexiones, evitando errores de conexión en los primeros segundos.
+
+## Cómo se comunican los servicios entre sí
+
+Docker Compose crea automáticamente una **red bridge interna** que comparten todos los servicios definidos en el mismo `docker-compose.yml`. Dentro de esa red, cada contenedor es alcanzable por los demás usando el **nombre del servicio como hostname** (resolución DNS automática de Docker).
+
+En este proyecto:
+- El backend accede a la base de datos como `reservas-db:5432` (variable `DATABASE_URL`).
+- El frontend accede al backend como `reservas-backend:4000` (variable `BACKEND_URL`), vía resolución interna.
+- El browser del usuario accede al frontend vía `localhost:3000` (puerto publicado en el host), y los assets y API calls externos usan `http://localhost:4000` (variable `NEXT_PUBLIC_API_URL`).
+
+La diferencia clave es que la comunicación contenedor–contenedor usa nombres de servicio (red interna), mientras que la comunicación browser–contenedor usa `localhost` con el puerto publicado por Docker.
 
 ## Problemas encontrados y cómo los resolviste
 
@@ -43,24 +85,40 @@ Se uso la IA para el formateo de los archivos, refactorizacion de codigo, resolu
 
 ## Análisis y redefinición de la Historia de Usuario
 
-En primer lugar, crear una tabla en la base de datos es una tarea técnica que no aporta valor de negocio directo ni perceptible para el cliente/usuario final, por lo que no corresponde plantearla como una Historia de Usuario (HU), sino como una tarea técnica derivada de una necesidad funcional. No obstante, asumiendo el escenario en el que deba formularse como HU, la propuesta original presentaba inconsistencias:
+Crear una tabla en la base de datos es una **tarea técnica** que no aporta valor de negocio directo ni perceptible para el usuario final. Por lo tanto, no corresponde plantearla como una Historia de Usuario (HU), sino como una tarea técnica derivada de una necesidad funcional de negocio. El rol en una HU debe ser siempre quien recibe el valor (un cliente, un usuario del sistema), no quien programa.
+
+La propuesta original presentaba además las siguientes inconsistencias:
 
 - **Estructura**: La plantilla *"Como... Quiero... Para..."* corresponde al cuerpo de la descripción de la historia y no a su título. El título debe ser conciso y orientador.
+- **Actor incorrecto**: Usar *"Como desarrollador"* convierte la historia en una tarea técnica interna; el desarrollador no es quien recibe el valor de negocio.
 - **Criterios de aceptación**: Carecía por completo de criterios de aceptación (*acceptance criteria*), lo cual es crítico dado que el desarrollador no tendría forma de determinar objetivamente cuándo la historia está finalizada (*Definition of Done*).
 
-### Reformulación propuesta
+### Historia de Usuario correcta (necesidad de negocio)
 
-- **Título**: Tabla de usuarios
-- **Descripción**: *Como desarrollador, quiero crear la tabla `usuarios` en la base de datos para almacenar y gestionar de forma persistente y segura los datos de los usuarios.*
+La Historia de Usuario que da origen a la tarea técnica de "crear la tabla usuarios" sería:
+
+- **Título**: Registro e inicio de sesión de usuarios
+- **Descripción**: *Como cliente del sistema de reservas, quiero poder registrarme con mi email y contraseña e iniciar sesión para acceder a mis reservas y gestionar mi cuenta de forma segura.*
 - **Criterios de aceptación**:
-  - [ ] **Estructura de la tabla**: Definir la tabla `usuarios` con los campos `id` (PK, auto-incremental o UUID), `nombre`, `email`, `password_hash`, `rol`, `estado`, `created_at` y `updated_at`.
-  - [ ] **Campos obligatorios**: Configurar restricción `NOT NULL` en `nombre`, `email`, `password_hash`, `rol` y `estado`.
-  - [ ] **Unicidad de email**: Aplicar restricción `UNIQUE` sobre la columna `email` para evitar duplicados.
-  - [ ] **Seguridad de contraseñas**: Asegurar que el campo `password_hash` almacene contraseñas cifradas mediante algoritmos seguros (ej. BCrypt, Argon2), nunca en texto plano.
-  - [ ] **Valores por defecto**: Asignar valores por defecto para `rol` (ej. `'user'`) y `estado` (ej. `'activo'`).
-  - [ ] **Auditoría temporal**: Configurar `created_at` con la fecha y hora actual de inserción (`CURRENT_TIMESTAMP`) y `updated_at` para actualizarse en modificaciones.
-  - [ ] **Script de migración**: Proveer un script de migración versionado y ejecutable que soporte creación (`up`) y reversión (`down` / rollback).
-  - [ ] **Validación de errores**: Validar que la base de datos rechace inserciones con emails duplicados o campos requeridos nulos.
+  - [ ] El cliente puede registrarse con nombre, email y contraseña.
+  - [ ] El sistema rechaza emails duplicados con un mensaje de error claro.
+  - [ ] Las contraseñas se almacenan cifradas (BCrypt/Argon2); nunca en texto plano.
+  - [ ] El cliente puede iniciar sesión con su email y contraseña y accede a su panel de reservas.
+  - [ ] El sistema asigna un rol por defecto (`'user'`) al registrarse.
+  - [ ] Todos los campos obligatorios (nombre, email, contraseña) se validan antes de guardar.
+
+### Tarea técnica derivada
+
+De la historia anterior se desprende la tarea técnica *"Crear la tabla `usuarios` en la base de datos"*, con los siguientes criterios de implementación:
+
+- [ ] **Estructura**: Campos `id` (PK, auto-incremental o UUID), `nombre`, `email`, `password_hash`, `rol`, `estado`, `created_at`, `updated_at`.
+- [ ] **Campos obligatorios**: Restricción `NOT NULL` en `nombre`, `email`, `password_hash`, `rol` y `estado`.
+- [ ] **Unicidad de email**: Restricción `UNIQUE` sobre `email` para evitar duplicados.
+- [ ] **Seguridad**: `password_hash` almacena contraseñas cifradas (BCrypt/Argon2), nunca en texto plano.
+- [ ] **Valores por defecto**: `rol` = `'user'`, `estado` = `'activo'`.
+- [ ] **Auditoría temporal**: `created_at` con `CURRENT_TIMESTAMP` en inserción; `updated_at` actualizable en modificaciones.
+- [ ] **Migración versionada**: Script ejecutable con `up` (creación) y `down` (rollback).
+- [ ] **Validación de errores**: La base rechaza emails duplicados o campos requeridos nulos.
 
 ## Duración del sprint y justificación
 
