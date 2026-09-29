@@ -1,6 +1,6 @@
 'use client';
 
-import { ServiciosXUnidad, Unidad } from '@prisma/client';
+import { ServiciosXUnidad, Unidad } from '@/types';
 import { useState } from 'react';
 import { ChangeEvent } from 'react';
 import { useRouter } from 'next/navigation';

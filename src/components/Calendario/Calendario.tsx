@@ -5,7 +5,7 @@ import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import esLocale from '@fullcalendar/core/locales/es';
-import { Cliente, EstadoReserva } from '@prisma/client';
+import { Cliente, EstadoReserva } from '@/types';
 import { FormReserva } from '../Reservas/FormReserva';
 
 interface CalendarioEvento {

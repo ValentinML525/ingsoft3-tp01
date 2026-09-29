@@ -12,7 +12,7 @@ import {
     Textarea,
 } from '../../Client/MaterialTailwindClient';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { EstadoReserva } from '@prisma/client';
+import { EstadoReserva } from '@/types';
 import { calcularCantidadNoches } from '@/actions/funciones-globales/funciones-globales';
 import { getUnidadPorId } from '@/actions/unidades/unidades';
 import { insertarReserva } from '@/actions/reservas/reservas';

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { TotalPorEstado } from '../Reportes';
 import dynamic from 'next/dynamic';
-import { EstadoReserva } from '@prisma/client';
+import { EstadoReserva } from '@/types';
 import { Card, CardBody, Typography } from '@/components/Client/MaterialTailwindClient';
 
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });

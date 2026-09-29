@@ -13,7 +13,7 @@ import {
     IconButton,
 } from '../../../components/Client/MaterialTailwindClient';
 import { useFormContext } from 'react-hook-form';
-import { Ubicacion } from '@prisma/client';
+import { Ubicacion } from '@/types';
 
 import { OpenStreetMapProvider } from 'leaflet-geosearch';
 import { FaHome } from 'react-icons/fa';

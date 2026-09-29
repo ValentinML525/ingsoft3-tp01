@@ -1,41 +1,37 @@
 'use server';
 
-import prisma from '@/lib/prisma';
-import bcryptjs from 'bcryptjs'
+import { backendHeaders } from '@/lib/api-key';
 
+const getBackendUrl = () =>
+	process.env.BACKEND_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
 
-export const registerUser = async( name: string, email: string, password: string ) => {
+export const registerUser = async (name: string, email: string, password: string) => {
+	try {
+		const res = await fetch(`${getBackendUrl()}/api/auth/register`, {
+			method: 'POST',
+			headers: backendHeaders(),
+			body: JSON.stringify({ name, email, password }),
+		});
 
-  try {
-    
-    const user = await prisma.user.create({
-      data: {
-        name: name,
-        email: email.toLowerCase(),
-        password: bcryptjs.hashSync( password ),
-      },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-      }
-    })
+		const data = await res.json();
 
-    return {
-      ok: true,
-      user: user,
-      message: 'Usuario creado'
-    }
+		if (!res.ok) {
+			return {
+				ok: false,
+				message: data.message ?? 'No se pudo crear el usuario',
+			};
+		}
 
-  } catch (error) {
-    console.log(error);
-
-    return {
-      ok: false,
-      message: 'No se pudo crear el usuario'
-    }
-  }
-
-  
-
-}
+		return {
+			ok: true,
+			user: data.user,
+			message: 'Usuario creado',
+		};
+	} catch (error) {
+		console.error('Error al registrar usuario:', error);
+		return {
+			ok: false,
+			message: 'No se pudo conectar con el servidor. Intente más tarde.',
+		};
+	}
+};

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { DataIngresos, TotalPorEstado } from './Reportes';
-import { EstadoReserva } from '@prisma/client';
+import { EstadoReserva } from '@/types';
 import dynamic from 'next/dynamic';
 
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });

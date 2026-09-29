@@ -1,6 +1,6 @@
 'use client';
 
-import { EstadoReserva } from '@prisma/client';
+import { EstadoReserva } from '@/types';
 import { BiEnvelope } from 'react-icons/bi';
 import { BsWhatsapp } from 'react-icons/bs';
 import { Paginacion } from '../../app/commons/Paginacion';

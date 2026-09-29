@@ -1,7 +1,7 @@
 'use client';
 
 import { Calendario } from '@/components/Calendario/Calendario';
-import { Reserva } from '@prisma/client';
+import { Reserva } from '@/types';
 import { getReservasCalendario } from '@/actions/reservas/reservas';
 import { getAllPropiedades } from '@/actions/propiedades/propiedades';
 import React, { useCallback, useEffect, useState } from 'react';

@@ -1,14 +1,20 @@
 'use server';
-import prisma from '@/lib/prisma';
+
+import { backendHeaders } from '@/lib/api-key';
+
+const getBackendUrl = () =>
+	process.env.BACKEND_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
 
 export const getAllServicios = async () => {
 	try {
-		const servicios = await prisma.servicio.findMany({});
+		const res = await fetch(`${getBackendUrl()}/api/servicios`, {
+			headers: backendHeaders(),
+		});
 
-		return servicios;
+		if (!res.ok) throw new Error('Error al buscar los servicios');
+		return await res.json();
 	} catch (error) {
-		console.log(error);
+		console.error(error);
 		throw new Error('Error al buscar los servicios');
-		return [];
 	}
 };

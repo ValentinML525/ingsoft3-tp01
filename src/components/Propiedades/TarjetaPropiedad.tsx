@@ -1,5 +1,5 @@
 'use client';
-import { Propiedad } from '@prisma/client';
+import { Propiedad } from '@/types';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { BsHousesFill } from 'react-icons/bs';
