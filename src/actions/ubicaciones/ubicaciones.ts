@@ -1,14 +1,20 @@
 'use server';
-import prisma from '@/lib/prisma';
+
+import { backendHeaders } from '@/lib/api-key';
+
+const getBackendUrl = () =>
+	process.env.BACKEND_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
 
 export const getUbicaciones = async () => {
 	try {
-		const ubicaciones = await prisma.ubicacion.findMany({});
+		const res = await fetch(`${getBackendUrl()}/api/ubicaciones/todas`, {
+			headers: backendHeaders(),
+		});
 
-		return ubicaciones;
+		if (!res.ok) throw new Error('Error al obtener las ubicaciones');
+		return await res.json();
 	} catch (error) {
-		console.log(error);
+		console.error(error);
 		throw new Error('Error al obtener las ubicaciones');
-		return [];
 	}
 };

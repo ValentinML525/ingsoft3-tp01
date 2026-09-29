@@ -1,8 +1,13 @@
 import prisma from '@/lib/prisma';
-import { Segment } from 'next/dist/server/app-render/types';
 import { NextResponse, NextRequest } from 'next/server';
+import { checkApiKey } from '@/lib/api-key';
 
-export async function GET(request: Request, { params }: Segment) {
+type Params = { params: { id: string } };
+
+export async function GET(request: Request, { params }: Params) {
+	const keyError = checkApiKey(request);
+	if (keyError) return keyError;
+
 	const reserva = await prisma.reserva.findFirst({
 		where: { id: params.id },
 	});

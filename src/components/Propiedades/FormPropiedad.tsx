@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Ubicacion } from '@prisma/client';
+import { Ubicacion } from '@/types';
 import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
 import {
     Button,

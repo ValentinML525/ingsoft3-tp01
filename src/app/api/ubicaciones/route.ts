@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
+import { checkApiKey } from '@/lib/api-key';
 
 export async function POST(request: Request) {
+	const keyError = checkApiKey(request);
+	if (keyError) return keyError;
+
 	try {
 		const url = await request.json();
 

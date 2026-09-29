@@ -8,7 +8,7 @@ import {
     Tooltip,
 } from '@/components/Client/MaterialTailwindClient';
 import Image from 'next/image';
-import { Unidad } from '@prisma/client';
+import { Unidad } from '@/types';
 import { useRouter } from 'next/navigation';
 import { IconoServicio } from '@/components/Servicios/IconoServicio';
 

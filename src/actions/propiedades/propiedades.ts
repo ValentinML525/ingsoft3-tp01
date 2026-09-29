@@ -1,154 +1,108 @@
 'use server';
+
 import { auth } from '@/auth.config';
-import prisma from '@/lib/prisma';
-import { Propiedad, TipoPropiedad } from '@prisma/client';
+import { backendHeaders } from '@/lib/api-key';
+import { Propiedad, TipoPropiedad } from '@/types';
 import { revalidatePath } from 'next/cache';
-import { generarSlug } from '../funciones-globales/funciones-globales';
 
-export const getAllPropiedades = async () => {
-    const session = await auth();
+const getBackendUrl = () =>
+	process.env.BACKEND_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
 
-    try {
-        const propiedades = await prisma.propiedad.findMany({
-            where: { usuarioId: session?.user.id },
-            include: {
-                ubicacion: true,
-                tipo: true,
-                unidades: true,
-            },
-        });
+export const getAllPropiedades = async (): Promise<Propiedad[]> => {
+	const session = await auth();
 
-        return propiedades;
-    } catch (error) {
-        throw new Error('Error al obtener las propiedades');
-    }
+	try {
+		const params = new URLSearchParams({
+			all: 'true',
+			...(session?.user?.id ? { usuarioId: session.user.id } : {}),
+		});
+
+		const res = await fetch(`${getBackendUrl()}/api/propiedades?${params}`, {
+			headers: backendHeaders(),
+		});
+
+		if (!res.ok) throw new Error('Error al obtener las propiedades');
+		return await res.json() as Propiedad[];
+	} catch (error) {
+		throw new Error('Error al obtener las propiedades');
+	}
 };
 
-export const getPropiedadPorSlug = async (slug: string) => {
-    // const normalizedSlug = slug.trim().toLowerCase();
-    try {
-        const propiedad = await prisma.propiedad.findFirst({
-            where: {
-                slug: slug,
-            },
-            include: {
-                ubicacion: true,
-                tipo: true,
-            },
-        });
+export const getPropiedadPorSlug = async (slug: string): Promise<Propiedad> => {
+	try {
+		const res = await fetch(
+			`${getBackendUrl()}/api/propiedades/${slug}?by=slug`,
+			{ headers: backendHeaders() }
+		);
 
-        if (!propiedad) {
-            throw new Error('No se encontró la propiedad');
-        }
+		if (!res.ok) throw new Error('No se encontró la propiedad');
 
-        return propiedad;
-    } catch (error) {
-        console.log('Error: ', error);
-        throw new Error('Error al obtener la propiedad.');
-    }
+		return await res.json() as Propiedad;
+	} catch (error) {
+		console.error('Error:', error);
+		throw new Error('Error al obtener la propiedad.');
+	}
 };
 
-export const getAllTiposPropiedad = async () => {
-    try {
-        const tiposPropiedad = await prisma.tipoPropiedad.findMany({});
+export const getAllTiposPropiedad = async (): Promise<TipoPropiedad[]> => {
+	try {
+		const res = await fetch(`${getBackendUrl()}/api/propiedades/tipos`, {
+			headers: backendHeaders(),
+		});
 
-        return tiposPropiedad;
-    } catch (error) {
-        throw new Error('Error al obtener los tipos de propiedad');
-    }
+		if (!res.ok) throw new Error('Error al obtener los tipos de propiedad');
+		return await res.json() as TipoPropiedad[];
+	} catch (error) {
+		throw new Error('Error al obtener los tipos de propiedad');
+	}
 };
 
-export const upsertPropiedad = async (propiedad: any) => {
-    const session = await auth();
-    try {
-        const slugPropiedad = generarSlug(propiedad.nombre);
-        const propiedadUpserted = await prisma.propiedad.upsert({
-            where: { id: propiedad.id || 0 },
-            update: {
-                nombre: propiedad.nombre,
-                slug: slugPropiedad,
-                telefonoContacto: propiedad.telefonoContacto,
-                tipo: {
-                    connect: { id: propiedad.tipoPropiedadId },
-                },
-                ubicacion: {
-                    upsert: {
-                        create: {
-                            direccion: propiedad.ubicacion.direccion,
-                            latitud: propiedad.ubicacion.latitud,
-                            longitud: propiedad.ubicacion.longitud,
-                            ciudad: propiedad.ubicacion.ciudad,
-                            provincia: propiedad.ubicacion.provincia,
-                        },
-                        update: {
-                            direccion: propiedad.ubicacion.direccion,
-                            latitud: propiedad.ubicacion.latitud,
-                            longitud: propiedad.ubicacion.longitud,
-                            ciudad: propiedad.ubicacion.ciudad,
-                            provincia: propiedad.ubicacion.provincia,
-                        },
-                    },
-                },
-                usuario: {
-                    connect: { id: session?.user.id },
-                },
-            },
-            create: {
-                nombre: propiedad.nombre,
-                slug: slugPropiedad,
-                telefonoContacto: propiedad.telefonoContacto,
-                tipo: {
-                    connect: { id: propiedad.tipoPropiedadId },
-                },
-                ubicacion: {
-                    create: {
-                        direccion: propiedad.ubicacion.direccion,
-                        latitud: propiedad.ubicacion.latitud,
-                        longitud: propiedad.ubicacion.longitud,
-                        ciudad: propiedad.ubicacion.ciudad,
-                        provincia: propiedad.ubicacion.provincia,
-                    },
-                },
-                usuario: {
-                    connect: { id: session?.user.id },
-                },
-            },
-        });
+export const upsertPropiedad = async (propiedad: any): Promise<Propiedad> => {
+	const session = await auth();
 
-        revalidatePath('/dashboard/propiedades');
+	try {
+		const res = await fetch(`${getBackendUrl()}/api/propiedades`, {
+			method: 'POST',
+			headers: backendHeaders(),
+			body: JSON.stringify({ ...propiedad, usuarioId: session?.user?.id }),
+		});
 
-        return propiedadUpserted;
-    } catch (error) {
-        throw new Error(`Error: ${error}`);
-    }
+		if (!res.ok) {
+			const data = await res.json();
+			throw new Error(data.error ?? 'Error al guardar la propiedad');
+		}
+
+		revalidatePath('/dashboard/propiedades');
+		return await res.json() as Propiedad;
+	} catch (error) {
+		throw new Error(`Error: ${error}`);
+	}
 };
 
-export const eliminarPropiedad = async (id: number) => {
-    const session = await auth();
-    try {
-        const propiedad = await prisma.propiedad.findUnique({
-            where: { id },
-        });
+export const eliminarPropiedad = async (id: number): Promise<boolean> => {
+	const session = await auth();
 
-        if (!propiedad || propiedad.usuarioId !== session?.user.id) {
-            throw new Error(
-                'No se encontró la propiedad o no tiene permisos para eliminarla'
-            );
-        }
+	try {
+		const params = new URLSearchParams({
+			...(session?.user?.id ? { usuarioId: session.user.id } : {}),
+		});
 
-        await prisma.propiedad.delete({
-            where: { id },
-        });
+		const res = await fetch(
+			`${getBackendUrl()}/api/propiedades/${id}?${params}`,
+			{
+				method: 'DELETE',
+				headers: backendHeaders(),
+			}
+		);
 
-        await prisma.ubicacion.deleteMany({
-            where: { id: propiedad.ubicacionId },
-        });
+		if (!res.ok) {
+			const data = await res.json();
+			throw new Error(data.error ?? 'Error al eliminar la propiedad');
+		}
 
-        revalidatePath('/dashboard/propiedades');
-
-        return true;
-    } catch (error) {
-        throw new Error(`Error al eliminar la propiedad: ${error}`);
-        return false;
-    }
+		revalidatePath('/dashboard/propiedades');
+		return true;
+	} catch (error) {
+		throw new Error(`Error al eliminar la propiedad: ${error}`);
+	}
 };

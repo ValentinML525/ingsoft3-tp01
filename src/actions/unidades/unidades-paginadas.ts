@@ -1,6 +1,9 @@
 'use server';
 
-import prisma from '@/lib/prisma';
+import { backendHeaders } from '@/lib/api-key';
+
+const getBackendUrl = () =>
+	process.env.BACKEND_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
 
 interface OpcionesPaginacion {
 	pagina?: number;
@@ -15,28 +18,17 @@ export const getUnidadesPaginadas = async ({
 	if (isNaN(Number(pagina)) || pagina < 1) pagina = 1;
 
 	try {
-		const unidades = await prisma.unidad.findMany({
-			include: {
-				servicios: {
-					include: {
-						servicio: true,
-					},
-				},
-			},
-			take,
-			skip: (pagina - 1) * take,
-			orderBy: { id: 'asc' },
+		const params = new URLSearchParams({
+			pagina: String(pagina),
+			take: String(take),
 		});
 
-		const totalUnidades = await prisma.unidad.count({});
-		const cantidadPaginas = Math.ceil(totalUnidades / take);
+		const res = await fetch(`${getBackendUrl()}/api/unidades?${params}`, {
+			headers: backendHeaders(),
+		});
 
-		return {
-			paginaActual: pagina,
-			cantidadPaginas: cantidadPaginas,
-			totalUnidades: totalUnidades,
-			unidades,
-		};
+		if (!res.ok) throw new Error('No se pudo cargar las Unidades.');
+		return await res.json();
 	} catch (error) {
 		throw new Error('No se pudo cargar las Unidades.');
 	}
@@ -50,37 +42,18 @@ export const getUnidadesPaginadasPorPropiedad = async ({
 	if (isNaN(Number(pagina)) || pagina < 1) pagina = 1;
 
 	try {
-		const unidades = await prisma.unidad.findMany({
-			where: {
-				propiedadId: propiedadId,
-			},
-			include: {
-				reservas: true,
-				servicios: {
-					include: {
-						servicio: true,
-					},
-				},
-				imagenes: true,
-			},
-			take,
-			skip: (pagina - 1) * take,
-			orderBy: { id: 'asc' },
+		const params = new URLSearchParams({
+			pagina: String(pagina),
+			take: String(take),
+			...(propiedadId ? { propiedadId: String(propiedadId) } : {}),
 		});
 
-		const totalUnidades = await prisma.unidad.count({
-			where: {
-				propiedadId: propiedadId,
-			},
+		const res = await fetch(`${getBackendUrl()}/api/unidades?${params}`, {
+			headers: backendHeaders(),
 		});
-		const cantidadPaginas = Math.ceil(totalUnidades / take);
 
-		return {
-			paginaActual: pagina,
-			cantidadPaginas: cantidadPaginas,
-			totalUnidades: totalUnidades,
-			unidades,
-		};
+		if (!res.ok) throw new Error(`Error al cargar unidades`);
+		return await res.json();
 	} catch (error) {
 		throw new Error(`Error: ${error}`);
 	}

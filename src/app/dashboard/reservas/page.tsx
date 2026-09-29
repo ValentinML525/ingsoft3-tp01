@@ -1,4 +1,3 @@
-import prisma from '@/lib/prisma';
 import Tabla from '../../../components/Reservas/Tabla';
 import { BotonRegistrarReserva } from '../../../components/Reservas/BotonRegistrarReserva';
 import { getReservasPaginadas } from '../../../actions/reservas/reservas-paginadas';

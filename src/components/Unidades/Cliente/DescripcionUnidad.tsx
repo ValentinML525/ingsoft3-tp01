@@ -1,4 +1,4 @@
-import { Unidad } from '@prisma/client';
+import { Unidad } from '@/types';
 import { Chip, Typography } from '../../Client/MaterialTailwindClient';
 import { IconoServicio } from '@/components/Servicios/IconoServicio';
 import MapaConMarcador from '@/components/Mapas/MapaConMarcador';

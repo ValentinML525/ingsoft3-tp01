@@ -26,16 +26,27 @@ services:
     ports:
       - "4000:4000"
     environment:
+      # --- Base de datos (solo el backend accede a la BD) ---
       - DATABASE_URL=${DATABASE_URL}
+      # --- Auth ---
       - AUTH_SECRET=${AUTH_SECRET}
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
-      - NEXTAUTH_URL=${NEXTAUTH_URL}
+      - NEXTAUTH_URL=${NEXTAUTH_URL_BACKEND}
       - AUTH_TRUST_HOST=${AUTH_TRUST_HOST}
+      # --- API Key compartida (para comunicación frontend → backend) ---
+      - BACKEND_API_KEY=${BACKEND_API_KEY}
+      # --- APIs externas ---
       - GEO_API_KEY=${GEO_API_KEY}
       - PORT=4000
     depends_on:
       reservas-db:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:4000/api/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      start_period: 30s
+      retries: 5
 
   reservas-frontend:
     build:
@@ -46,16 +57,21 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - DATABASE_URL=${DATABASE_URL}
+      # --- Auth (el frontend gestiona la sesión con el mismo secret) ---
       - AUTH_SECRET=${AUTH_SECRET}
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
       - NEXTAUTH_URL=${NEXTAUTH_URL}
       - AUTH_TRUST_HOST=${AUTH_TRUST_HOST}
-      - NEXT_PUBLIC_API_URL=http://localhost:4000
+      # --- URL del backend (server-to-server dentro de Docker) ---
       - BACKEND_URL=http://reservas-backend:4000
+      # --- URL pública del backend (para llamadas desde el browser, si las hubiera) ---
+      - NEXT_PUBLIC_API_URL=http://localhost:4000
+      # --- API Key compartida ---
+      - BACKEND_API_KEY=${BACKEND_API_KEY}
       - PORT=3000
     depends_on:
-      - reservas-backend
+      reservas-backend:
+        condition: service_healthy
 
 volumes:
   postgres-data:

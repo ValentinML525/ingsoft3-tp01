@@ -1,9 +1,10 @@
 'use server';
 
-import prisma from '@/lib/prisma';
-import { NOMEM } from 'dns';
-import { getSession } from 'next-auth/react';
-import { auth } from "@/auth.config";
+import { auth } from '@/auth.config';
+import { backendHeaders } from '@/lib/api-key';
+
+const getBackendUrl = () =>
+	process.env.BACKEND_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
 
 interface OpcionesPaginacion {
 	pagina?: number;
@@ -16,27 +17,21 @@ export const getPropiedadesPaginadas = async ({
 }: OpcionesPaginacion) => {
 	if (isNaN(Number(pagina)) || pagina < 1) pagina = 1;
 
-  // OBTENER LA SESION DEL LADO DEL SERVIDOR
-  const session = await auth();
+	const session = await auth();
 
 	try {
-		const propiedades = await prisma.propiedad.findMany({
-      where: { usuarioId: session?.user.id},
-			take,
-			skip: (pagina - 1) * take,
-			orderBy: { id: 'asc' },
-			include: {},
+		const params = new URLSearchParams({
+			pagina: String(pagina),
+			take: String(take),
+			...(session?.user?.id ? { usuarioId: session.user.id } : {}),
 		});
 
-		const totalPropiedades = await prisma.propiedad.count({});
-		const cantidadPaginas = Math.ceil(totalPropiedades / take);
+		const res = await fetch(`${getBackendUrl()}/api/propiedades?${params}`, {
+			headers: backendHeaders(),
+		});
 
-		return {
-			paginaActual: pagina,
-			cantidadPaginas: cantidadPaginas,
-			totalPropiedades: totalPropiedades,
-			propiedades,
-		};
+		if (!res.ok) throw new Error('Error al obtener las propiedades');
+		return await res.json();
 	} catch (error) {
 		throw new Error(`Error: ${error}`);
 	}
