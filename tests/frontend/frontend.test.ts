@@ -1,5 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { generarSlug, calcularCantidadNoches } from '../../src/actions/funciones-globales/funciones-globales';
+import {
+	generarSlug,
+	calcularCantidadNoches,
+	prioridadDeReserva,
+	clasificarTipoEstadia,
+} from '../../src/actions/funciones-globales/funciones-globales';
 import { validarDatosRegistro } from '../../src/lib/validaciones-usuario';
 import { registerUser } from '../../src/actions/auth/register';
 
@@ -33,6 +38,31 @@ describe('Frontend - Lógica y Cliente de Servicios', () => {
 
 			// Assert
 			expect(noches).toBe(4);
+		});
+	});
+
+	describe('prioridadDeReserva (Lógica de Anticipación)', () => {
+		it.each([
+			{ dias: -2, esperado: 'invalida', desc: 'días negativos retorna invalida' },
+			{ dias: 0, esperado: 'urgente', desc: 'mismo día retorna urgente' },
+			{ dias: 1, esperado: 'urgente', desc: '1 día retorna urgente' },
+			{ dias: 5, esperado: 'alta', desc: 'menos de 7 días retorna alta' },
+			{ dias: 20, esperado: 'media', desc: 'menos de 30 días retorna media' },
+			{ dias: 60, esperado: 'baja', desc: 'más de 30 días retorna baja' },
+		])('asigna prioridad "$esperado" para $dias días ($desc)', ({ dias, esperado }) => {
+			expect(prioridadDeReserva(dias)).toBe(esperado);
+		});
+	});
+
+	describe('clasificarTipoEstadia (Lógica de Duración)', () => {
+		it.each([
+			{ noches: 0, esperado: 'invalida', desc: '0 noches retorna invalida' },
+			{ noches: 1, esperado: 'escapada', desc: '1 noche retorna escapada' },
+			{ noches: 3, esperado: 'fin-de-semana', desc: 'hasta 4 noches retorna fin-de-semana' },
+			{ noches: 10, esperado: 'quincena', desc: 'hasta 14 noches retorna quincena' },
+			{ noches: 20, esperado: 'larga-estadia', desc: 'más de 14 noches retorna larga-estadia' },
+		])('clasifica como "$esperado" para $noches noches ($desc)', ({ noches, esperado }) => {
+			expect(clasificarTipoEstadia(noches)).toBe(esperado);
 		});
 	});
 
