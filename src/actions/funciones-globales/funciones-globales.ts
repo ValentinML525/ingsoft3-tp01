@@ -18,3 +18,44 @@ export function calcularCantidadNoches(fechaInicio: Date | string, fechaFin: Dat
 
 	return Math.max(0, Math.floor(noches));
 }
+
+/**
+ * Determina la categoría de anticipación y prioridad de una reserva.
+ * Método con múltiples caminos de decisión agregado para validar el quality gate.
+ */
+export function prioridadDeReserva(diasAnticipacion: number): string {
+	if (diasAnticipacion < 0) {
+		return 'invalida';
+	}
+	if (diasAnticipacion <= 1) {
+		return 'urgente';
+	}
+	if (diasAnticipacion <= 7) {
+		return 'alta';
+	}
+	if (diasAnticipacion <= 30) {
+		return 'media';
+	}
+	return 'baja';
+}
+
+/**
+ * Categoriza una reserva según la duración de la estadía.
+ */
+export function clasificarTipoEstadia(noches: number): string {
+	if (noches <= 0) {
+		return 'invalida';
+	}
+	if (noches === 1) {
+		return 'escapada';
+	}
+	if (noches <= 4) {
+		return 'fin-de-semana';
+	}
+	if (noches <= 14) {
+		return 'quincena';
+	}
+	return 'larga-estadia';
+}
+
+
