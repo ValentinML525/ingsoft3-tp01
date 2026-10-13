@@ -17,6 +17,10 @@ RUN npx prisma generate
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
 
+# ---- Etapa 2: tests (ejecuta suite con umbral y coverage) ----
+FROM builder AS test
+ENTRYPOINT ["npm", "run", "test:frontend:ci"]
+
 FROM node:20-alpine AS runner
 WORKDIR /app
 
