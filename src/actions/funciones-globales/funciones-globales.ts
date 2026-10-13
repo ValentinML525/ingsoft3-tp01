@@ -58,4 +58,57 @@ export function clasificarTipoEstadia(noches: number): string {
 	return 'larga-estadia';
 }
 
+/**
+ * Calcula el porcentaje de descuento promocional según la temporada y la cantidad de noches.
+ * Código nuevo sin tests para demostrar que el quality gate frena el merge.
+ */
+export function calcularDescuentoPorTemporada(mes: number, noches: number): number {
+	if (mes < 1 || mes > 12) {
+		return 0;
+	}
+	if (mes >= 6 && mes <= 8) {
+		// Temporada baja de invierno
+		if (noches >= 7) {
+			return 20;
+		}
+		if (noches >= 3) {
+			return 10;
+		}
+		return 5;
+	}
+	if (mes === 1 || mes === 2) {
+		// Temporada alta de verano
+		if (noches >= 14) {
+			return 10;
+		}
+		return 0;
+	}
+	// Temporada media (resto del año)
+	if (noches >= 5) {
+		return 15;
+	}
+	return 0;
+}
+
+/**
+ * Calcula el recargo financiero según el medio de pago seleccionado.
+ */
+export function calcularRecargoMetodoPago(metodo: string, cuotas: number): number {
+	if (metodo === 'efectivo' || metodo === 'transferencia') {
+		return 0;
+	}
+	if (metodo === 'tarjeta_debito') {
+		return 2.5;
+	}
+	if (metodo === 'tarjeta_credito') {
+		if (cuotas <= 1) return 5;
+		if (cuotas <= 3) return 12;
+		if (cuotas <= 6) return 22;
+		return 35;
+	}
+	return 10;
+}
+
+
+
 
