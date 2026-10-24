@@ -1,10 +1,20 @@
 import { NextResponse } from 'next/server';
 
+// Sin esto Next.js renderiza la ruta UNA vez en el build y devuelve siempre ese JSON congelado.
+export const dynamic = 'force-dynamic';
+
 /**
  * GET /api/health
- * Healthcheck endpoint — usado por Docker para verificar que el backend está vivo.
+ * Healthcheck endpoint — usado por Docker y por el smoke test del pipeline.
+ * Devuelve el commit que está corriendo: Render lo inyecta en RENDER_GIT_COMMIT al construir
+ * desde el repo; en otros entornos se puede pasar GIT_COMMIT. Así el smoke compara contra el
+ * commit que verificó y no da verde contra la versión vieja.
  * No requiere API key.
  */
 export async function GET() {
-	return NextResponse.json({ status: 'ok', timestamp: new Date().toISOString() });
+	return NextResponse.json({
+		status: 'ok',
+		commit: process.env.RENDER_GIT_COMMIT ?? process.env.GIT_COMMIT ?? 'desconocido',
+		timestamp: new Date().toISOString(),
+	});
 }
