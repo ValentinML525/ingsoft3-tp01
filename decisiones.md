@@ -2,12 +2,12 @@
 
 | Qué | Enlace |
 |---|---|
-| Paquete público del **backend** (etiquetado con el commit de un merge) | https://github.com/users/ValentinML525/packages/container/package/ingsoft3-tp01-backend — `docker pull ghcr.io/valentinml525/ingsoft3-tp01-backend:sha-⏳COMPLETAR` |
-| Paquete público del **frontend** | https://github.com/users/ValentinML525/packages/container/package/ingsoft3-tp01-frontend — `docker pull ghcr.io/valentinml525/ingsoft3-tp01-frontend:sha-⏳COMPLETAR` |
-| Cadena 1 — job de un **PR en verde** con «Entrar al registry» **salteado** | ⏳COMPLETAR (link al job `build-backend` de la corrida del PR) |
-| Cadena 2 — **lista de pasos de una corrida de `main`**, «Construir y publicar la imagen» último | ⏳COMPLETAR (link al job `build-backend` de la corrida de `main`) |
-| **QA** (front / api) | ⏳COMPLETAR `https://…-front-qa.onrender.com` · `https://…-api-qa.onrender.com` |
-| **PROD** (front / api) | ⏳COMPLETAR `https://…-front-prod.onrender.com` · `https://…-api-prod.onrender.com` |
+| Paquete público del **backend** (etiquetado con el commit de un merge) | https://github.com/users/ValentinML525/packages/container/package/ingsoft3-tp01-backend — `docker pull ghcr.io/valentinml525/ingsoft3-tp01-backend:sha-7588c2fbc8bb0b7b1d9be443d99fe429d267a1f0` (merge del PR #27) |
+| Paquete público del **frontend** | https://github.com/users/ValentinML525/packages/container/package/ingsoft3-tp01-frontend — `docker pull ghcr.io/valentinml525/ingsoft3-tp01-frontend:sha-7588c2fbc8bb0b7b1d9be443d99fe429d267a1f0` (merge del PR #27) |
+| Cadena 1 — job de un **PR en verde** con «Entrar al registry» **salteado** | https://github.com/ValentinML525/ingsoft3-tp01/actions/runs/40140570498/job/121011254890?pr=26 (job `build-backend` del PR #26) |
+| Cadena 2 — **lista de pasos de una corrida de `main`**, «Construir y publicar la imagen» último | https://github.com/ValentinML525/ingsoft3-tp01/actions/runs/40150161198/job/121039842733 (job `build-backend` de la corrida de `main` del merge #27: «Construir y publicar la imagen del backend» es el paso 10, el último antes de los `Post …`) |
+| **QA** (front / api) | https://miapp-front-qa-r825.onrender.com · https://ingsoft3-tp01-qa.onrender.com |
+| **PROD** (front / api) | https://miapp-front-prod-2m9z.onrender.com · https://miapp-api-prod-8pbo.onrender.com |
 
 Lo demás se navega desde el repo: *Actions* (deploys, smoke, `Waiting for review`, aprobación y rechazo), *Deployments* (qué commit está en cada entorno) y *Releases* (`v6.0.0`).
 
@@ -530,7 +530,7 @@ El smoke (`.github/scripts/smoke.sh`, el mismo para QA y PROD, con las URLs de l
 - que las variables de auth (`AUTH_SECRET`, `NEXTAUTH_URL`) sean correctas;
 - que la imagen corriendo sea la del registry (ver punto 7).
 
-**Cómo comprobé que cada entorno usa su propia base:** inserté un servicio con un nombre inconfundible **sólo en `app_prod`** desde el SQL Editor de Neon y comprobé que el conteo de `/api/health/db` de PROD sube y el de QA no (⏳COMPLETAR con los números observados).
+**Cómo comprobé que cada entorno usa su propia base:** inserté un servicio con un nombre inconfundible **sólo en `app_prod`** desde el SQL Editor de Neon y comprobé que el conteo de `/api/health/db` de PROD sube y el de QA no. Números observados: las dos bases tenían 0 filas en `Servicio`; después de insertar `SOY PROD` sólo en `app_prod`, PROD devolvió `servicios: 1` y QA siguió en `0`. Para confirmar que QA lee `app_qa` (y no otra base), inserté una fila temporal en `app_qa`: la api de QA pasó a `1`, y la borré después.
 
 ## 9. Deployment pattern para producción real
 
@@ -573,7 +573,8 @@ Sobrevive casi todo sin cambios: los Dockerfiles, las imágenes del registry, lo
 - **`/api/health` congelado**: un route handler de Next.js 14 sin uso de `request` se prerenderiza en el build. Le agregué `export const dynamic = 'force-dynamic'`, si no el `timestamp` y el `commit` salían del build.
 - **No había endpoint de BD sin API key**: los endpoints de datos exigen `x-api-key`. En vez de darle la API key al smoke, agregué `/api/health/db`, que sólo devuelve un conteo.
 - **Nombre del paquete en minúsculas**: `github.repository` tiene mayúsculas; escribí el nombre a mano.
-- ⏳COMPLETAR con lo que aparezca al configurar Render/Neon.
+- **Un espacio de más en el nombre de las bases de Neon**: al crear las databases a mano quedaron `app_qa ` y `app_prod ` (con espacio al final). Neon me dio connection strings con `app_qa%20`, y como Prisma crea la base si no existe, `migrate deploy` creó `app_qa%20` y `app_prod%20` con las tablas, mientras `app_qa` y `app_prod` quedaban vacías. **Nada se puso rojo**: el smoke dio verde porque la api usaba la misma string con `%20`. Lo vi mirando la lista de databases en Neon y el log de «Aplicar migraciones» (`Datasource "db": PostgreSQL database "app_qa%20"`). Lo resolví corrigiendo la `DATABASE_URL` sin `%20` en los secrets de cada environment y en las dos apis de Render, y volviendo a correr los jobs: ahora las migraciones se aplican a `app_qa` y `app_prod`, y lo comprobé con el insert del punto 8. Aprendizaje: el log de migraciones dice a qué base se conectó; conviene leerlo la primera vez.
+- **Credencial pegada en una conversación con la IA**: pasé la connection string al asistente para diagnosticar. La considero expuesta y rotaré la password del rol de Neon.
 
 ## 14. Declaración de uso de IA
 
