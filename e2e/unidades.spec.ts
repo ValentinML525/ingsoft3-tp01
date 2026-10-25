@@ -6,6 +6,9 @@ const PASSWORD = process.env.E2E_PASSWORD || '123456';
 
 async function ingresar(page: Page, password = PASSWORD) {
 	await page.goto('/auth/login');
+	// El front de QA puede estar recién despertado: sin esperar a que la página termine de cargar,
+	// el clic llega antes de que el formulario esté listo y el login se queda en /auth/login (flaky).
+	await page.waitForLoadState('networkidle');
 	await page.getByLabel('Correo electrónico').fill(EMAIL);
 	await page.getByLabel('Contraseña').fill(password);
 	await page.getByRole('button', { name: 'Ingresar' }).click();
@@ -14,7 +17,7 @@ async function ingresar(page: Page, password = PASSWORD) {
 // Entra y abre las unidades de la primera propiedad del usuario.
 async function irAUnidades(page: Page) {
 	await ingresar(page);
-	await expect(page).toHaveURL(/\/dashboard/);
+	await expect(page).toHaveURL(/\/dashboard/, { timeout: 30_000 });
 	await page.goto('/dashboard/propiedades');
 	await page.getByRole('button', { name: /^Ver unidades de / }).first().click();
 	await expect(page.getByRole('button', { name: 'Registrar Unidad' })).toBeVisible();
