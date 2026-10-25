@@ -42,6 +42,7 @@ export const LoginForm = () => {
             className="!border-t-blue-gray-200 focus:!border-t-gray-900"
             type="email"
             name="email"
+            aria-label="Correo electrónico"
             labelProps={{
               className: "before:content-none after:content-none",
             }}
@@ -52,6 +53,7 @@ export const LoginForm = () => {
             label="Contraseña"
             placeholder="********"
             name="password"
+            aria-label="Contraseña"
             className="!border-t-blue-gray-200 focus:!border-t-gray-900 "
             labelProps={{
               className: "before:content-none after:content-none",
@@ -59,7 +61,7 @@ export const LoginForm = () => {
           />
 
           {state === "Invalid credentials." && (
-            <div className="flex items-center space-x-2 mt-2">
+            <div role="alert" className="flex items-center space-x-2 mt-2">
               <IoInformationOutline className="h-5 w-5 text-red-500" />
               <Typography className="text-sm text-red-500">
                 Usuario o contraseña incorrecta.

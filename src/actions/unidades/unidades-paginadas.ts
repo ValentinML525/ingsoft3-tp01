@@ -25,6 +25,7 @@ export const getUnidadesPaginadas = async ({
 
 		const res = await fetch(`${getBackendUrl()}/api/unidades?${params}`, {
 			headers: backendHeaders(),
+			cache: 'no-store', // un listado de datos que cambian: sin la Data Cache de Next, que lo dejaba viejo
 		});
 
 		if (!res.ok) throw new Error('No se pudo cargar las Unidades.');
@@ -50,6 +51,7 @@ export const getUnidadesPaginadasPorPropiedad = async ({
 
 		const res = await fetch(`${getBackendUrl()}/api/unidades?${params}`, {
 			headers: backendHeaders(),
+			cache: 'no-store', // un listado de datos que cambian: sin la Data Cache de Next, que lo dejaba viejo
 		});
 
 		if (!res.ok) throw new Error(`Error al cargar unidades`);

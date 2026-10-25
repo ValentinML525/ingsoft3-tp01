@@ -4,3 +4,7 @@ node_modules
 postgres
 npm-debug.log
 .env*
+e2e
+playwright.config.ts
+playwright-report
+test-results

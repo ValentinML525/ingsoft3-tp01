@@ -242,6 +242,7 @@ export const FormUnidad = ({
                                     <div className='flex flex-col w-full gap-3'>
                                         <Input
                                             label='Nombre*'
+                                            aria-label='Nombre de la unidad'
                                             error={!!errors.nombre}
                                             {...register('nombre', {
                                                 required:
@@ -249,7 +250,7 @@ export const FormUnidad = ({
                                             })}
                                         />
                                          {errors.nombre && (
-                                             <p className='text-red-500'>
+                                             <p role='alert' className='text-red-500'>
                                                  {errors.nombre.message as string}
                                              </p>
                                          )}
@@ -257,6 +258,7 @@ export const FormUnidad = ({
                                         <div className='flex gap-5'>
                                             <Input
                                                 label='Capacidad*'
+                                                aria-label='Capacidad de la unidad'
                                                 error={!!errors.capacidad}
                                                 icon={
                                                     <div className='flex gap-2 items-center ml-[-70px]'>
@@ -277,7 +279,7 @@ export const FormUnidad = ({
                                                 })}
                                             />
                                              {errors.capacidad && (
-                                                 <p className='text-red-500'>
+                                                 <p role='alert' className='text-red-500'>
                                                      {errors.capacidad.message as string}
                                                  </p>
                                              )}
@@ -286,6 +288,7 @@ export const FormUnidad = ({
                                         <div className='flex'>
                                             <Textarea
                                                 label='Descripción*'
+                                                aria-label='Descripción de la unidad'
                                                 error={!!errors.descripcion}
                                                 {...register('descripcion', {
                                                     required:
@@ -293,7 +296,7 @@ export const FormUnidad = ({
                                                 })}
                                             />
                                              {errors.descripcion && (
-                                                 <p className='text-red-500'>
+                                                 <p role='alert' className='text-red-500'>
                                                      {errors.descripcion.message as string}
                                                  </p>
                                              )}
@@ -369,7 +372,7 @@ export const FormUnidad = ({
                                                         />
 
                                                          {errors.precioPorNoche && (
-                                                             <p className='text-red-500'>
+                                                             <p role='alert' className='text-red-500'>
                                                                  {
                                                                      errors
                                                                          .precioPorNoche

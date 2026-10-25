@@ -155,6 +155,7 @@ export const TarjetaPropiedad = ({ propiedades = [] }: Props) => {
                         variant='text'
                         color='light-green'
                         onClick={() => handleVerDetalles(propiedad.id)}
+                        aria-label={`Ver unidades de ${propiedad.nombre}`}
                       >
                         <FaEye size={20} />
                       </Button>
