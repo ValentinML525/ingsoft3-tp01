@@ -1,0 +1,16 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"              # back y front comparten el package.json de la raiz
+    directory: "/"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "docker"           # las imagenes base (node:20-alpine) de los dos Dockerfiles
+    directory: "/"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "github-actions"   # las actions tambien son dependencias
+    directory: "/"
+    schedule:
+      interval: "weekly"
