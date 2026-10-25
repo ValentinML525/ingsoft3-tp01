@@ -555,8 +555,7 @@ Como cada deploy se dispara con un commit explícito, **volver atrás es dispara
 
 Alternativa con la interfaz: *Actions* → corrida de ese commit → re-correr sólo el job `deploy-prod` (vuelve a pedir aprobación; sólo para corridas de menos de 30 días).
 
-**Tiempo medido:** ⏳COMPLETAR. Lo hice una vez de verdad: hook disparado a las ⏳`HH:MM:SS`; en Render → `api-prod` → *Deploys*, el deploy del commit `⏳sha` empezó a las ⏳ y quedó **live** a las ⏳ → **⏳ minutos**. (El front: ⏳.)
-
+**Tiempo medido: ≈ 4 minutos.** Lo hice una vez de verdad, desde PROD corriendo `a87d399` (el merge de la documentación, posterior a `v6.0.0`): disparé los hooks de api y front de PROD con `&ref=7588c2fbc8bb0b7b1d9be443d99fe429d267a1f0` (`git rev-list -n1 v6.0.0`) a las **02:00** (hora local); en Render → *Deploys* de cada servicio de PROD, el deploy de `7588c2f` quedó **live** a las **02:04** → **4 minutos** de rollback, que son casi todos el rebuild de Next.js en Render (el hook no despliega una imagen ya construida: reconstruye). Lo comprobé desde afuera: después del rollback `/api/health` de la api y del front de PROD informan `commit: 7588c2fbc8bb0b7b1d9be443d99fe429d267a1f0`.
 **Lo que el rollback de código NO deshace:** los **datos** y el **esquema**. Si la versión mala ejecutó una migración que borró o renombró una columna, volver al código anterior no la recupera, y además el código viejo puede romper contra el esquema nuevo. Tampoco deshace las reservas creadas o modificadas mal por la versión rota. Para eso haría falta: migraciones expand/contract (nunca destructivas en el mismo deploy), backups o el *point-in-time restore* de Neon (branches/restore a un instante) y scripts de corrección de datos. La métrica DORA que ejercito es el **MTTR / tiempo de restauración del servicio** (*failed deployment recovery time*).
 
 ## 11. La release
