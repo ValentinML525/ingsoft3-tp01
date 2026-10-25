@@ -2,12 +2,12 @@
 
 | Qué | Enlace |
 |---|---|
-| Paquete público del **backend** (etiquetado con el commit de un merge) | https://github.com/users/ValentinML525/packages/container/package/ingsoft3-tp01-backend — `docker pull ghcr.io/valentinml525/ingsoft3-tp01-backend:sha-⏳COMPLETAR` |
-| Paquete público del **frontend** | https://github.com/users/ValentinML525/packages/container/package/ingsoft3-tp01-frontend — `docker pull ghcr.io/valentinml525/ingsoft3-tp01-frontend:sha-⏳COMPLETAR` |
-| Cadena 1 — job de un **PR en verde** con «Entrar al registry» **salteado** | ⏳COMPLETAR (link al job `build-backend` de la corrida del PR) |
-| Cadena 2 — **lista de pasos de una corrida de `main`**, «Construir y publicar la imagen» último | ⏳COMPLETAR (link al job `build-backend` de la corrida de `main`) |
-| **QA** (front / api) | ⏳COMPLETAR `https://…-front-qa.onrender.com` · `https://…-api-qa.onrender.com` |
-| **PROD** (front / api) | ⏳COMPLETAR `https://…-front-prod.onrender.com` · `https://…-api-prod.onrender.com` |
+| Paquete público del **backend** (etiquetado con el commit de un merge) | https://github.com/users/ValentinML525/packages/container/package/ingsoft3-tp01-backend — `docker pull ghcr.io/valentinml525/ingsoft3-tp01-backend:sha-7588c2fbc8bb0b7b1d9be443d99fe429d267a1f0` (merge del PR #27) |
+| Paquete público del **frontend** | https://github.com/users/ValentinML525/packages/container/package/ingsoft3-tp01-frontend — `docker pull ghcr.io/valentinml525/ingsoft3-tp01-frontend:sha-7588c2fbc8bb0b7b1d9be443d99fe429d267a1f0` (merge del PR #27) |
+| Cadena 1 — job de un **PR en verde** con «Entrar al registry» **salteado** | https://github.com/ValentinML525/ingsoft3-tp01/actions/runs/40140570498/job/121011254890?pr=26 (job `build-backend` del PR #26) |
+| Cadena 2 — **lista de pasos de una corrida de `main`**, «Construir y publicar la imagen» último | https://github.com/ValentinML525/ingsoft3-tp01/actions/runs/40150161198/job/121039842733 (job `build-backend` de la corrida de `main` del merge #27: «Construir y publicar la imagen del backend» es el paso 10, el último antes de los `Post …`) |
+| **QA** (front / api) | https://miapp-front-qa-r825.onrender.com · https://ingsoft3-tp01-qa.onrender.com |
+| **PROD** (front / api) | https://miapp-front-prod-2m9z.onrender.com · https://miapp-api-prod-8pbo.onrender.com |
 
 Lo demás se navega desde el repo: *Actions* (deploys, smoke, `Waiting for review`, aprobación y rechazo), *Deployments* (qué commit está en cada entorno) y *Releases* (`v6.0.0`).
 
