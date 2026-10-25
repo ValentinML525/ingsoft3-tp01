@@ -1,6 +1,11 @@
+import { withSentryConfig } from '@sentry/nextjs';
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
 	output: 'standalone',
+	experimental: {
+		instrumentationHook: true, // Next 14 no carga src/instrumentation.ts sin esto
+	},
 	images: {
 		remotePatterns: [
 			{
@@ -23,4 +28,9 @@ const nextConfig = {
 	},
 };
 
-export default nextConfig;
+// Sin token de Sentry no se suben source maps; el build no depende de la red de Sentry.
+export default withSentryConfig(nextConfig, {
+	silent: true,
+	telemetry: false,
+	sourcemaps: { disable: true },
+});
