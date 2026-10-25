@@ -1,3 +1,12 @@
+# Enlaces del TP8 (Infraestructura como Código)
+
+| Qué | Enlace |
+|---|---|
+| Carpeta `infra/` (Terraform) | https://github.com/ValentinML525/ingsoft3-tp01/tree/main/infra |
+| **Release `v8.0.0`** | https://github.com/ValentinML525/ingsoft3-tp01/releases/tag/v8.0.0 |
+
+`preprod` no queda vivo: se crea en la defensa con `terraform apply` desde `infra/`. QA y PROD no se tocaron.
+
 # Enlaces del TP7 (contenedores en el pipeline + integración y e2e)
 
 | Qué | Enlace |
@@ -451,8 +460,6 @@ Implementé **Continuous Delivery**: QA se despliega solo y PROD espera una apro
 - mis tests cubren reglas de negocio pero no hay tests end-to-end, ni monitoreo, ni alertas: la máquina sola no tiene información suficiente para decidir;
 - el free tier no permite rollout gradual (canary) que limite el daño automáticamente.
 
-**Qué me faltaría para Continuous Deployment:** tests e2e automáticos contra QA, observabilidad en PROD (tasa de errores, latencia, logs centralizados) con rollback automático cuando se degrade, y migraciones siempre compatibles hacia atrás. Hoy no lo querría: el gate humano es lo que compensa la falta de esa red de seguridad.
-
 ## 3. Diseño de la cadena (`needs` / `if` / environments) y alcance de cada secret
 
 ```
@@ -478,8 +485,6 @@ deploy-prod     needs: deploy-qa                        · environment: producti
 | `GITHUB_TOKEN` | lo genera GitHub por corrida | los jobs de build (`packages: write`) |
 
 Los secrets se llaman **igual** en los dos environments a propósito: el job usa `secrets.RENDER_HOOK_API` y es el environment el que decide si eso es el hook de QA o el de PROD. Así es imposible que el job de QA dispare PROD por un error de nombre.
-
-**Por qué los secrets de PROD viven en el environment y no en el repo:** un secret de repositorio lo puede leer **cualquier** job de **cualquier** workflow que corra en `main`, incluido uno que alguien agregue mañana sin pasar por el gate. Dentro del environment `production`, el secret sólo se entrega a un job que declaró ese environment **y fue aprobado**. Si estuviera en el repo, el required reviewer sería decorativo: cualquier `curl $HOOK` en otro job desplegaría PROD sin aprobación.
 
 **Migraciones en el pipeline.** Mi app crea el esquema con **migraciones de Prisma** (no tiene `EnsureCreated` ni migra al arrancar). Cada job de deploy corre `prisma migrate deploy` contra **su** base antes de disparar el hook, así el código nuevo arranca contra un esquema que ya existe. En PROD, la migración también está detrás de la aprobación.
 
@@ -555,8 +560,7 @@ El smoke (`.github/scripts/smoke.sh`, el mismo para QA y PROD, con las URLs de l
 - **Por qué ése para MI app:** es una app de reservas con poco tráfico. Canary necesita **volumen de tráfico** para que el 5 % de usuarios sea estadísticamente significativo, y métricas para comparar las dos versiones; con pocas reservas por día, un canary no detecta nada en un tiempo razonable. Rolling no aporta mucho con una o dos instancias, y durante el rollout conviven dos versiones mezcladas. Blue-green me da un **smoke contra PROD real antes de exponer usuarios** y un **rollback instantáneo** (volver el router a blue, segundos en vez de un rebuild de minutos).
 - **Costo:** el doble de infraestructura mientras conviven los dos entornos (en un plan pago, dos instancias por servicio). Para una app chica es aceptable; la base es compartida, no se duplica.
 - **Riesgo y rollback:** el riesgo está en la **base compartida**: blue y green leen la misma. Exige migraciones **expand/contract** (primero agregar columnas compatibles, y recién en un deploy posterior sacar lo viejo), para que blue siga funcionando si hay que volver.
-- **Feature flags** (deploy ≠ release): el código nuevo llega desactivado y se prende por configuración, sin deploy. Lo usaría, por ejemplo, para un nuevo cálculo de precios o un nuevo medio de pago: lo despliego apagado, lo prendo para un propietario de prueba y, si algo falla, lo apago sin rollback.
-- **Qué observabilidad me falta hoy para ejecutarlo:** métricas de errores 5xx y latencia por versión, logs centralizados, una métrica de negocio (reservas creadas/fallidas) y alertas. Sin eso, después del switch no sabría si green está peor que blue. Y para canary, además, un router con división de tráfico por porcentaje, que Render Free no tiene.
+- **Qué observabilidad me falta hoy para ejecutarlo:** métricas de errores 5xx y latencia por versión, logs centralizados, una métrica de negocio (reservas creadas/fallidas) y alertas. Sin eso, después del switch no sabría si green está peor que blue.
 
 ## 10. Plan de rollback actual (medido)
 
@@ -571,17 +575,13 @@ Como cada deploy se dispara con un commit explícito, **volver atrás es dispara
 Alternativa con la interfaz: *Actions* → corrida de ese commit → re-correr sólo el job `deploy-prod` (vuelve a pedir aprobación; sólo para corridas de menos de 30 días).
 
 **Tiempo medido: ≈ 4 minutos.** Lo hice una vez de verdad, desde PROD corriendo `a87d399` (el merge de la documentación, posterior a `v6.0.0`): disparé los hooks de api y front de PROD con `&ref=7588c2fbc8bb0b7b1d9be443d99fe429d267a1f0` (`git rev-list -n1 v6.0.0`) a las **02:00** (hora local); en Render → *Deploys* de cada servicio de PROD, el deploy de `7588c2f` quedó **live** a las **02:04** → **4 minutos** de rollback, que son casi todos el rebuild de Next.js en Render (el hook no despliega una imagen ya construida: reconstruye). Lo comprobé desde afuera: después del rollback `/api/health` de la api y del front de PROD informan `commit: 7588c2fbc8bb0b7b1d9be443d99fe429d267a1f0`.
-**Lo que el rollback de código NO deshace:** los **datos** y el **esquema**. Si la versión mala ejecutó una migración que borró o renombró una columna, volver al código anterior no la recupera, y además el código viejo puede romper contra el esquema nuevo. Tampoco deshace las reservas creadas o modificadas mal por la versión rota. Para eso haría falta: migraciones expand/contract (nunca destructivas en el mismo deploy), backups o el *point-in-time restore* de Neon (branches/restore a un instante) y scripts de corrección de datos. La métrica DORA que ejercito es el **MTTR / tiempo de restauración del servicio** (*failed deployment recovery time*).
+**Lo que el rollback de código NO deshace:** los **datos** y el **esquema**. Si la versión mala ejecutó una migración que borró o renombró una columna, volver al código anterior no la recupera, y además el código viejo puede romper contra el esquema nuevo. Tampoco deshace las reservas creadas o modificadas mal por la versión rota. Para eso haría falta: migraciones expand/contract (nunca destructivas en el mismo deploy), backups o el *point-in-time restore* de Neon (branches/restore a un instante) y scripts de corrección de datos.
 
 ## 11. La release
 
-La llegada a PROD está etiquetada como **`v6.0.0`** (el número lo fija el práctico, TP6 → v6.0.0, no SemVer) y publicada como Release de GitHub con notas generadas desde los PRs. El tag apunta al **commit que figura en Deployments → production**, no a la punta de `main`.
+La llegada a PROD está etiquetada como **`v6.0.0`** y publicada como Release de GitHub con notas generadas desde los PRs. El tag apunta al **commit que figura en Deployments → production**, no a la punta de `main`.
 
-## 12. Si Render desaparece mañana
-
-Sobrevive casi todo sin cambios: los Dockerfiles, las imágenes del registry, los jobs de build, la cadena de compuertas (`needs`/`if`), los environments con sus reviewers y secrets, el smoke (sólo cambian las variables `URL_*`), las migraciones y la release. Lo que migra es **una línea por job**: el «cómo» del deploy (el `curl` del hook se reemplaza por `flyctl deploy --image`, `railway up`, `kubectl set image`, etc.) y los valores de los secrets. Sobrevive porque el pipeline depende de **contratos** (una imagen, una URL que contesta `/api/health`, un environment que aprueba) y no del proveedor.
-
-## 13. Problemas encontrados y cómo los resolví
+## 12. Problemas encontrados y cómo los resolví
 
 - **La app no es .NET + nginx**: tuve que traducir la guía. La plantilla de nginx no aplica porque el front es un servidor Next.js; el equivalente es leer `BACKEND_URL` en runtime (ver punto 4). `EnsureCreated` tampoco existe: el esquema lo crean las migraciones de Prisma, que agregué como paso de cada job de deploy.
 - **`/api/health` congelado**: un route handler de Next.js 14 sin uso de `request` se prerenderiza en el build. Le agregué `export const dynamic = 'force-dynamic'`, si no el `timestamp` y el `commit` salían del build.
@@ -590,7 +590,7 @@ Sobrevive casi todo sin cambios: los Dockerfiles, las imágenes del registry, lo
 - **Un espacio de más en el nombre de las bases de Neon**: al crear las databases a mano quedaron `app_qa ` y `app_prod ` (con espacio al final). Neon me dio connection strings con `app_qa%20`, y como Prisma crea la base si no existe, `migrate deploy` creó `app_qa%20` y `app_prod%20` con las tablas, mientras `app_qa` y `app_prod` quedaban vacías. **Nada se puso rojo**: el smoke dio verde porque la api usaba la misma string con `%20`. Lo vi mirando la lista de databases en Neon y el log de «Aplicar migraciones» (`Datasource "db": PostgreSQL database "app_qa%20"`). Lo resolví corrigiendo la `DATABASE_URL` sin `%20` en los secrets de cada environment y en las dos apis de Render, y volviendo a correr los jobs: ahora las migraciones se aplican a `app_qa` y `app_prod`, y lo comprobé con el insert del punto 8. Aprendizaje: el log de migraciones dice a qué base se conectó; conviene leerlo la primera vez.
 - **Credencial pegada en una conversación con la IA**: pasé la connection string al asistente para diagnosticar. La considero expuesta y rotaré la password del rol de Neon.
 
-## 14. Declaración de uso de IA
+## 13. Declaración de uso de IA
 
 Usé Claude Code (Claude Opus 5.5) para leer la consigna y adaptar la guía a mi stack: el workflow (`ci.yml`: reorden del build, publicación, jobs de deploy, migraciones, environments), el script de smoke test, los endpoints `/api/health` y `/api/health/db`, y la redacción de esta sección.
 
@@ -631,9 +631,9 @@ Ahora el pipeline construye **una vez**, con los tests verdes, y publica `ghcr.i
 
 - **Commit horneado en la imagen.** Los dos Dockerfiles reciben `ARG GIT_COMMIT` (el pipeline lo pasa con `build-args: GIT_COMMIT=${{ github.sha }}`) y lo dejan en `ENV GIT_COMMIT`. `/api/health` devuelve ese commit, y `smoke.sh` **compara** el commit que responde la api **y el front** contra el commit de la corrida. Si el deploy no ocurrió, el servicio sigue con la imagen anterior, responde un commit viejo y el smoke se queda esperando hasta fallar. Esto cierra el hueco que la guía deja como concepto (§2.4): **un smoke que sólo pregunta «¿respondés?» da verde igual contra la versión vieja**.
 - **Por qué fue necesario tocarlo:** antes `/api/health` leía `RENDER_GIT_COMMIT`, que Render sólo inyecta cuando **construye desde el repo**. Con una imagen no hay build y la variable no existe: el smoke habría esperado para siempre. Ahora tiene prioridad `GIT_COMMIT` (horneado) y `RENDER_GIT_COMMIT` queda de respaldo.
-- **Events de Render:** cada servicio muestra «Triggered via Deploy Hook» con el `sha-<commit>` de la corrida (se ve en vivo en la defensa). Un deploy hecho desde el panel no dice «Triggered via Deploy Hook» y no tiene corrida que lo respalde: así me enteraría si alguien desplegara a mano.
-- **`docker pull` sin sesión** de las dos imágenes por su etiqueta `sha-<commit>` completa. Si el hook recibiera el commit corto, Render contestaría `400` («unable to fetch image with provided input»): el registry compara la etiqueta letra por letra.
-- **Quién escribe en el registry:** sólo el job de build, con el `GITHUB_TOKEN` efímero de la corrida y `permissions: packages: write` **por job** (no a nivel workflow); ningún token mío está en el YAML. Los paquetes son públicos para que Render los baje sin credenciales; por eso **las imágenes no llevan secretos** (van en variables del servicio).
+- **Events de Render:** cada servicio muestra «Triggered via Deploy Hook» con el `sha-<commit>` de la corrida (se ve en vivo en la defensa).
+- **`docker pull` sin sesión** de las dos imágenes por su etiqueta `sha-<commit>` completa.
+- **Los paquetes son públicos** para que Render los baje sin credenciales; por eso **las imágenes no llevan secretos** (van en variables del servicio).
 
 **Qué NO alcanza a probar el smoke:** que el front use bien la api, que un botón funcione o que el campo se mande con el nombre correcto; sólo ve lo que se me ocurrió preguntarle. La corrida roja de abajo lo demuestra: el smoke dio verde con la app rota.
 
@@ -666,9 +666,7 @@ El commit `cf2464e` (PR #33) cambió **una línea del front**: el formulario man
 
 **Fila 1 de la tabla de §2.5 (🟢 integración, 🔴 e2e):** la api y la base están sanas; el que no usa bien la api es el **front**. Lo sé **sin abrir el código**: lo dice el par de colores. Con el reporte rojo lo confirmé: el screenshot y la traza muestran que tras «Registrar» el diálogo de éxito nunca aparece, porque la api rechaza el pedido con `400` (falta `nombre`) y el front sólo hace `console.log` del error: por eso el usuario ve que no pasa nada.
 
-**Si hubiera roto la api:** la integración se habría puesto roja y la e2e **no habría corrido** (su `needs` no se cumple): fila 2, y también es información. Es lo que pasó en mi primer intento de merge, cuando los secrets de integración estaban mal cargados: la integración dio `401`, la e2e quedó salteada y `deploy-prod` no arrancó.
-
-**Un cambio de una línea que sólo la integración atraparía:** cambiar `DateTime.UtcNow` por `DateTime.Now` en el alta (el ejemplo de la guía), o renombrar un campo en el `select` de Prisma: los unitarios con doble no ven nada (el doble no tiene columnas ni tipos), y la integración le pregunta a la base de verdad.
+**Por qué un unitario con doble no habría visto lo que ve la integración:** el doble no tiene columnas ni tipos, así que un campo mal nombrado en el `select` de Prisma pasa los unitarios; la integración le pregunta a la base de verdad.
 
 **Qué clase de bug mi gate NO ataja:** lo que no recorren mis seis pruebas (reservas, reportes, calendario, mapa), lo que sólo pasa con datos y tráfico de PROD (QA tiene otra base casi vacía), la performance bajo carga, y los errores de configuración que sólo existen en PROD (una variable mal cargada en `api-prod` pasa verde en QA).
 
@@ -685,7 +683,7 @@ La **estrecha** arma la api en memoria dentro del job (en mi stack: levantar Nex
 
 El free tier duerme los servicios y el primer pedido tarda hasta ~1 minuto. Lo manejo con **tiempos largos y un solo reintento**, nunca con `sleep` ni `test.skip`: `timeout` de 60 s por test, `expect.timeout` de 15 s, `retries: 1`, y el smoke del job anterior ya despertó QA. Los jobs tienen `timeout-minutes` (15 y 20) para que uno colgado no espere horas.
 
-**Un test flaky** es el que a veces pasa y a veces falla **sin que cambie el código**. Es **peor que no tener test**: entrena al equipo a ignorar el rojo («seguro es el test») y, cuando el rojo es real, nadie lo mira. Un test faltante al menos no engaña.
+**Un test flaky** es el que a veces pasa y a veces falla **sin que cambie el código**.
 
 **Me pasó:** en la primera corrida completa el test 1 salió **flaky** (falló y pasó en el retry): el login se quedaba en `/auth/login` contra un front recién despertado. Mi diagnóstico: el clic en «Ingresar» llegaba antes de que la página terminara de cargar. Como un flaky aislado es una demora, no lo toqué esa vez, pero lo corregí en el PR #34 (el helper espera `networkidle` antes de ingresar y la espera de URL es de 30 s) para no llegar a «dos corridas seguidas».
 
@@ -699,11 +697,7 @@ Cada prueba que crea datos usa **un nombre con `Date.now()`** (no choca con otra
 
 Es la misma imagen: lo único que las distingue son **variables del servicio**. Por variable: `BACKEND_URL` (a qué api habla el front), `BACKEND_API_KEY`, `AUTH_SECRET`/`NEXTAUTH_SECRET`/`NEXTAUTH_URL`/`AUTH_TRUST_HOST` y, en las apis, `DATABASE_URL`. Adentro de la imagen: el código compilado, el cliente de Prisma, Node 20 y el commit que la produjo (`GIT_COMMIT`). El front lee `BACKEND_URL` **en runtime** (server actions) y no al construir, y no usa ninguna `NEXT_PUBLIC_*` para hablar con la api; por eso la misma imagen sirve en los dos entornos.
 
-## 11. Si cambio Render por otro proveedor
-
-Sobrevive casi todo: los Dockerfiles, las imágenes en ghcr.io, los jobs de build, las dos suites (Playwright es un cliente HTTP y un navegador: no saben de nubes; sólo cambian `API_BASE_URL` y `E2E_BASE_URL`), la cadena de `needs`, los environments con su reviewer, el smoke y la release. Cambia **una línea por deploy**: el `curl` del hook se reemplaza por `flyctl deploy --image`, `kubectl set image` o similar, con la misma imagen `sha-<commit>`. Sobrevive porque el pipeline depende de **contratos** (una imagen con una etiqueta, URLs que contestan, un environment que aprueba) y no del proveedor.
-
-## 12. Problemas encontrados y cómo los resolví
+## 11. Problemas encontrados y cómo los resolví
 
 - **El smoke no habría funcionado con una imagen:** el commit venía de `RENDER_GIT_COMMIT`, que Render inyecta sólo al construir desde el repo. Lo resolví horneando `GIT_COMMIT` en la imagen con `ARG`/`ENV` y `build-args`.
 - **La e2e encontró un bug real de la app:** una unidad recién creada no aparecía en el listado. El `fetch` de las server actions a la api usaba la *Data Cache* de Next.js y devolvía el listado viejo. Lo corregí con `cache: 'no-store'` en el listado de unidades.
@@ -714,8 +708,28 @@ Sobrevive casi todo: los Dockerfiles, las imágenes en ghcr.io, los jobs de buil
 - **`/api/seed` respondió `500` en QA:** su último paso (reservas de ejemplo) llama a la api por `BACKEND_URL`, que en Render no apunta al puerto correcto; los usuarios, propiedades y unidades ya estaban creados (no es transaccional) y alcanzó. Además descubrí que `/api/seed` **no pide API key y borra toda la base**: cualquiera puede vaciar PROD. Queda como deuda a proteger.
 - **Un flaky** en la primera corrida completa (ver punto 8).
 
-## 13. Declaración de uso de IA
+## 12. Declaración de uso de IA
 
 Usé Claude Code (Claude Opus 5.5) para leer la consigna y adaptar la guía a mi stack (Next.js + Prisma en lugar de .NET + Vite): el workflow (`imgURL`, `build-args`, jobs `integracion` y `e2e`, `needs`), los Dockerfiles, la config de Playwright, los dos specs, la validación yup, los `aria-label`, el arreglo del caché del listado y la redacción de esta sección.
 
 **Cómo lo verifiqué, y qué puedo explicar de cada test:** corrí las dos suites contra mi compose local antes de subirlas (3 + 3 en verde, con traza), y luego contra QA en Actions. Puedo decir de cada prueba **qué verifica, contra qué entorno corre y qué pasa si falla** (tabla del punto 5 y diagnóstico del punto 6). Comprobé que el gate frena de verdad provocando la rotura en el front (sin tocar `e2e/`) y leyendo la corrida: smoke verde, integración verde, e2e roja, `deploy-prod` sin arrancar; y que PROD recibe la misma `sha-<commit>` que QA (mismo `imgURL` en los dos deploys, mismo commit en los dos smokes).
+
+
+# Decisiones TP8 — Infraestructura como Código
+
+## Riel elegido y versiones fijadas
+
+Riel canónico: **Terraform + Neon + Render**, declarando un entorno nuevo `preprod` (proyecto Neon propio + `api` y `front` en Render con la imagen del TP7 `sha-eb8fed7…`). QA y PROD no se tocan. Versiones: Terraform **1.17.0**, `kislerdm/neon` **0.18.0**, `render-oss/render` **1.9.1** y `hashicorp/random` **3.7.2** (para generar `BACKEND_API_KEY` y `AUTH_SECRET`); el `.terraform.lock.hcl` está commiteado y el estado, ignorado.
+
+## Problemas encontrados y cómo los resolví
+
+- **Neon pidió `org_id`**: mi cuenta es de una organización y el primer apply falló con `org_id is required`. Consulté mi organización por la API de Neon y la dejé como variable (`neon_org_id`, no es un secreto).
+- **`RENDER_OWNER_ID` incorrecto**: había cargado el `usr-…` que vi en la URL y Render devolvió un `invalid` sin detalle. Reproduje la llamada directo contra la API y el mensaje real era `invalid ownerID`; `GET /v1/owners` me dio el id del workspace (`tea-…`). Como Terraform converge, el reintento sólo creó lo que faltaba.
+- **El esquema no lo crea Terraform ni la app**: mi app no migra al arrancar y la imagen no trae el CLI de Prisma. Agregué un `terraform_data` con `local-exec` que corre `prisma migrate deploy` contra la base nueva; se re-ejecuta si la base se recrea (lo comprobé borrando la base a mano: el plan propuso recrear la base y re-migrar).
+- **Variables de mi app, no las de la guía**: la guía usa `ConnectionStrings__Default`; la mía lee `DATABASE_URL`, `BACKEND_API_KEY`, `AUTH_SECRET`/`NEXTAUTH_SECRET`, `AUTH_TRUST_HOST` (api) y `BACKEND_URL` (front). La conexión se arma con los atributos de Neon y `BACKEND_URL` sale del `url` de la api; las claves las genera `random_password`.
+- **Al recrear, la URL de Render cambió** (`-lrh7` → `-uxio`): por eso las URLs se leen de los `output`.
+- **Cuota**: pasé de 4 a 6 servicios gratuitos de Render, así que preprod se destruye al terminar cada sesión.
+
+## Declaración de uso de IA
+
+Usé Claude Code (Claude Opus 5.5) para leer la consigna, escribir el HCL de `infra/` adaptado a mi stack (Next.js + Prisma) y redactar esta sección. **Cómo lo verifiqué:** leí el plan (8 recursos a crear) antes de aplicar; comprobé `/api/health`, `/api/health/db` y el front de preprod; el segundo `plan` dio «No changes»; provoqué drift (base borrada a mano → plan que la recrea → apply que repara) y una base no declarada (el plan no la ve); probé `prevent_destroy` (el destroy se negó); y hice `destroy → apply` viendo el orden inverso de ejecución, con QA y PROD respondiendo antes y después. Puedo leer un plan en voz alta y explicar qué haría cada acción.
