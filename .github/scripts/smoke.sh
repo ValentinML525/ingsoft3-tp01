@@ -8,7 +8,9 @@
 #   1. la api contesta /api/health Y dice que corre COMMIT_ESPERADO (no la versión anterior),
 #   2. la api llega a su base y el esquema existe (/api/health/db),
 #   3. el front contesta / Y también corre COMMIT_ESPERADO.
-# Reintenta porque Render reconstruye la imagen (minutos) y el free tier duerme (cold start).
+# El commit lo hornea el pipeline en la imagen (GIT_COMMIT): si el deploy no ocurrió, el servicio
+# sigue con la imagen anterior y el smoke lo ve (commit viejo). Reintenta porque Render tarda en
+# bajar y levantar la imagen y el free tier duerme (cold start).
 set -u
 
 INTENTOS="${INTENTOS:-60}"

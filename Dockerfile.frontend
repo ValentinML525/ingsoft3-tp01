@@ -37,6 +37,11 @@ COPY --from=builder /app/.next/static ./.next/static
 # El frontend NO accede a la BD en runtime — no tiene DATABASE_URL
 # Prisma client no se copia al runner
 
+# El commit que produjo esta imagen: lo pasa el pipeline (build-args) y /api/health lo devuelve.
+# Va al final del runner para no invalidar la caché de las capas de arriba.
+ARG GIT_COMMIT=desconocido
+ENV GIT_COMMIT=$GIT_COMMIT
+
 EXPOSE 3000
 
 ENV PORT=3000

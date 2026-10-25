@@ -36,6 +36,11 @@ COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma/client ./node_modules/@prisma/client
 COPY --from=builder /app/prisma ./prisma
 
+# El commit que produjo esta imagen: lo pasa el pipeline (build-args) y /api/health lo devuelve.
+# Va al final del runner para no invalidar la caché de las capas de arriba.
+ARG GIT_COMMIT=desconocido
+ENV GIT_COMMIT=$GIT_COMMIT
+
 EXPOSE 4000
 
 ENV PORT=4000
