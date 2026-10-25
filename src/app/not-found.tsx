@@ -8,7 +8,7 @@ export default function NotFound() {
 					404
 				</h1>
 				<div className='bg-naranja px-2 text-sm rounded rotate-12 absolute'>
-					Página No Encontrada
+					Pagina No Encontrada
 				</div>
 				<button className='mt-5'>
 					<div className='relative inline-block text-sm font-medium text-oscuro group active:text-white focus:outline-none focus:ring'>
