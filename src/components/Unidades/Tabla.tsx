@@ -321,6 +321,7 @@ export const TablaUnidades = ({
 														variant='text'
 														color='orange'
 														onClick={() => handleEditar(unidad)}
+														aria-label={`Editar ${unidad.nombre}`}
 													>
 														<FaPencilAlt size={18} />
 													</Button>
@@ -332,6 +333,7 @@ export const TablaUnidades = ({
 															variant='text'
 															color='red'
 															onClick={() => handleEliminar(unidad)}
+															aria-label={`Eliminar ${unidad.nombre}`}
 															disabled={unidad.reservas.length > 0}
 														>
 															<FaRegTimesCircle size={20} />

@@ -14,6 +14,10 @@
 /frontend-coverage
 /TestResults
 
+# playwright
+/playwright-report
+/test-results
+
 # next.js
 /.next/
 /out/

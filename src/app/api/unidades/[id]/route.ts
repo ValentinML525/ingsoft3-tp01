@@ -4,8 +4,17 @@ import { checkApiKey } from '@/lib/api-key';
 import { generarSlug } from '@/actions/funciones-globales/funciones-globales';
 import fs from 'fs';
 import path from 'path';
+import * as yup from 'yup';
 
 type Params = { params: { id: string } };
+
+// Lo que el alta/edición necesita para no terminar en un 500 de Prisma: un dato inválido es un 400.
+const unidadPutSchema = yup.object({
+	nombre: yup.string().trim().required('Nombre es requerido'),
+	capacidad: yup.number().integer().positive().required('Capacidad es requerida'),
+	propiedadId: yup.number().integer().positive().required('Propiedad es requerida'),
+	servicios: yup.array().required('Servicios son requeridos'),
+});
 
 /**
  * GET /api/unidades/[id]
@@ -120,6 +129,16 @@ export async function PUT(request: Request, { params }: Params) {
 
 	try {
 		const unidad = await request.json();
+
+		try {
+			await unidadPutSchema.validate(unidad, { abortEarly: false });
+		} catch (validationError) {
+			if (validationError instanceof yup.ValidationError) {
+				return NextResponse.json({ errors: validationError.errors }, { status: 400 });
+			}
+			throw validationError;
+		}
+
 		const slugUnidad = generarSlug(unidad.nombre);
 		const direccionImagen: string[] = [];
 
