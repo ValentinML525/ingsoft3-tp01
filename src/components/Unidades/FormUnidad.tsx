@@ -120,7 +120,7 @@ export const FormUnidad = ({
 
         const unidad: any = {
             id: unidadAEditar?.id,
-            nombre: data.nombre,
+            name: data.nombre,
             capacidad: +data.capacidad,
             descripcion: data.descripcion,
             servicios: serviciosSeleccionados,
