@@ -1,3 +1,16 @@
+# Enlaces del TP9 (DevSecOps + Observabilidad)
+
+| Qué | Enlace |
+|---|---|
+| `dependabot.yml` + permisos mínimos del workflow (PR #37) | https://github.com/ValentinML525/ingsoft3-tp01/pull/37 |
+| **PR de Dependabot mergeado** (#43, `docker/setup-buildx-action` 3 → 4) | https://github.com/ValentinML525/ingsoft3-tp01/pull/43 |
+| Sentry en back y front (PR #58) | https://github.com/ValentinML525/ingsoft3-tp01/pull/58 |
+| Tarjeta del tablero (issue #68) | https://github.com/ValentinML525/ingsoft3-tp01/issues/68 |
+| Pestaña *Security* (Code scanning, Dependabot, Secret scanning) | https://github.com/ValentinML525/ingsoft3-tp01/security |
+| **Release `v9.0.0`** | https://github.com/ValentinML525/ingsoft3-tp01/releases/tag/v9.0.0 |
+
+El monitor de UptimeRobot (con su DOWN y su UP) y Sentry se muestran en vivo en la defensa; el monitor queda **pausado**.
+
 # Enlaces del TP8 (Infraestructura como Código)
 
 | Qué | Enlace |
@@ -733,3 +746,35 @@ Riel canónico: **Terraform + Neon + Render**, declarando un entorno nuevo `prep
 ## Declaración de uso de IA
 
 Usé Claude Code (Claude Opus 5.5) para leer la consigna, escribir el HCL de `infra/` adaptado a mi stack (Next.js + Prisma) y redactar esta sección. **Cómo lo verifiqué:** leí el plan (8 recursos a crear) antes de aplicar; comprobé `/api/health`, `/api/health/db` y el front de preprod; el segundo `plan` dio «No changes»; provoqué drift (base borrada a mano → plan que la recrea → apply que repara) y una base no declarada (el plan no la ve); probé `prevent_destroy` (el destroy se negó); y hice `destroy → apply` viendo el orden inverso de ejecución, con QA y PROD respondiendo antes y después. Puedo leer un plan en voz alta y explicar qué haría cada acción.
+
+
+# Decisiones TP9 — DevSecOps + Observabilidad
+
+## El PR de Dependabot que mergeé
+
+Mergeé el **PR #43**: `docker/setup-buildx-action` de **v3 a v4**, una *major* (según SemVer, puede traer cambios incompatibles). Elegí ése entre los 20 que abrió Dependabot porque es una dependencia **del pipeline**, no del código que corre en producción, así que un problema se ve en el CI y no llega a los usuarios.
+
+Leí el changelog de la v4: pasa al runtime de Node 24 (los runners de GitHub ya lo cumplen) y quita inputs que ya estaban deprecados. Mi workflow usa la action **sin ningún input**, así que no me alcanza ninguno de los dos cambios. Me animé a mergearlo porque el CI quedó verde **con la v4 ya corriendo**: los dos jobs de build (tests, umbral de coverage y build de las dos imágenes) pasaron, y después del merge la cadena completa (integración y e2e contra QA, y smoke de PROD) es la red que lo respalda. Los PRs de npm (Next 16, zod 4, vitest 5…) los dejé sin mergear: son saltos mayores y su CI está en rojo.
+
+## Qué mostró el monitor y qué mostró Sentry
+
+- **Detección de la caída:** suspendí `api-prod` a las **11:49** y el monitor me avisó **DOWN a las 11:53**: **4 minutos** (el intervalo del plan gratuito es de 5). Reanudé a las **11:54** y el aviso **UP** llegó a las **00:08**: **14 minutos** después. Sin el monitor me habría enterado cuando un usuario avisara, sin hora ni tope.
+- **Operación más usada:** `GET /api/auth/[...nextauth]` (la consulta de sesión de NextAuth), con **26 pedidos**; entre las pantallas, `GET /auth/login` (22). Entre los datos de la api, `unidades/disponibles`, `unidades/[id]` y `ubicaciones/todas` (12 cada una).
+- **Operación más lenta:** en términos absolutos `GET /api/seed` (**P95 35,3 s**), pero es la carga de datos que corrí yo a mano. La más lenta de **uso real** es `GET /api/unidades/disponibles`: **P95 3,8 s** sobre 12 pedidos (P75 781 ms, P90 3,7 s). De ese dato nació la tarjeta del tablero (#68): optimizarla y volver a medir.
+- **Un error visto en Sentry:** «Falla de prueba del TP9», 9 eventos, de un endpoint temporal (`/api/falla`) que ya saqué del código.
+
+## Problemas encontrados y cómo los resolví
+
+- **El UP tardó 14 minutos, no 5:** al hacer *Resume*, Render deja el servicio dormido y el monitor recibe `503` hasta que alguien le pega. Yo no lo sabía: tuve que entrar a Render y abrir el servicio para que terminara de levantar. Aprendizaje: el monitor mide que el servicio **responde**, y un servicio gratuito reanudado no responde solo.
+- **Next 14 no carga `instrumentation.ts` sin una opción:** hubo que prender `experimental.instrumentationHook` en `next.config.mjs`. Usé `@sentry/nextjs` **8.55.2** (la v8 declara compatibilidad con Next 14) y la probé con el build `standalone` local antes del PR.
+- **Una app, dos imágenes, dos proyectos de Sentry:** el DSN de la api va por `SENTRY_DSN` (variable de entorno, sin ella el SDK queda apagado: así QA, los tests y preprod no mandan datos), y el del front está escrito en `sentry.client.config.ts` porque un DSN sólo sirve para enviar. El código del cliente además sólo manda desde `*.onrender.com`.
+- **PROD tenía la base vacía** (nunca se había sembrado): para tener uso que medir corrí `/api/seed`. Es el endpoint sin API key que borra toda la base y que ya había anotado como deuda en el TP7; sigue pendiente de proteger.
+- **Dos corridas esperando aprobación a la vez:** el `concurrency` de `deploy-prod` dejó la corrida nueva en cola detrás de una vieja sin aprobar y no me dejaba aprobar. Rechacé la vieja, como ya decía el punto 3 del TP6.
+- **Me aparecieron 11 alertas de CodeQL y 30 de Dependabot** apenas activé las dos cosas. Las 11 de CodeQL son `js/request-forgery` (SSRF) de severidad crítica, en las llamadas del front al backend; las analizo en la explicación y no las arreglo en este TP.
+- **`UntrustedHost` de NextAuth en la api de PROD:** apareció en los logs de `api-prod` (falta `AUTH_TRUST_HOST=true` ahí).
+
+## Declaración de uso de IA
+
+Usé Claude Code (Claude Opus 5.5) para leer la consigna y adaptarla a mi stack (Next.js + Prisma, en lugar de .NET + Vite): el `dependabot.yml`, los permisos mínimos de los jobs de `ci.yml`, la integración de `@sentry/nextjs` (config del servidor, del edge y del cliente, `instrumentation.ts`, `next.config.mjs`), el endpoint temporal, la activación por `gh api` de las alertas, las actualizaciones de seguridad y CodeQL, el análisis del PR de Dependabot, la tarjeta del tablero y la redacción de esta sección.
+
+**Cómo lo verifiqué:** probé la integración de Sentry antes del PR (build, 20 + 25 tests, y el servidor `standalone` respondiendo `500` en `/api/falla` y `200` en `/api/health`); comprobé con `gh api` que quedaran activos los tres controles; y los datos de esta sección (horas del monitor, TPM y P95) son los que leí yo en UptimeRobot y en Sentry de producción. Puedo mostrar cada pieza funcionando y explicar qué mira y qué no.
