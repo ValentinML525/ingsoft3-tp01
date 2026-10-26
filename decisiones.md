@@ -1,3 +1,10 @@
+# Índice de enlaces por TP
+
+- [TP9 — DevSecOps + Observabilidad](#enlaces-del-tp9-devsecops--observabilidad)
+- [TP8 — Infraestructura como Código](#enlaces-del-tp8-infraestructura-como-código)
+- [TP7 — contenedores en el pipeline + integración y e2e](#enlaces-del-tp7-contenedores-en-el-pipeline--integración-y-e2e)
+- [TP6 — CD: environments, aprobaciones y deployment patterns](#enlaces-del-tp6-cd-environments-aprobaciones-y-deployment-patterns)
+
 # Enlaces del TP9 (DevSecOps + Observabilidad)
 
 | Qué | Enlace |
@@ -27,7 +34,7 @@ El monitor de UptimeRobot (con su DOWN y su UP) y Sentry se muestran en vivo en 
 | Paquete público del **backend** | https://github.com/users/ValentinML525/packages/container/package/ingsoft3-tp01-backend — `docker pull ghcr.io/valentinml525/ingsoft3-tp01-backend:sha-eb8fed74aa497779bbb759ea7e396df3b1cb3beb` |
 | Paquete público del **frontend** | https://github.com/users/ValentinML525/packages/container/package/ingsoft3-tp01-frontend — `docker pull ghcr.io/valentinml525/ingsoft3-tp01-frontend:sha-eb8fed74aa497779bbb759ea7e396df3b1cb3beb` |
 | **Commit que rompió la app** (el front manda `name` en vez de `nombre`) | `cf2464ec9a8077db9554107bfa623cfbe8cf6081` — PR #33: https://github.com/ValentinML525/ingsoft3-tp01/pull/33 |
-| **Corrida con la integración VERDE y la e2e ROJA** (`deploy-prod` sin arrancar) | https://github.com/ValentinML525/ingsoft3-tp01/actions/runs/40217586849 — artefactos `playwright-report-integracion` (verde) y `playwright-report-e2e` (rojo, con screenshot y traza) |
+| **Corrida con la integración VERDE y la e2e ROJA** (`deploy-prod` sin arrancar) | https://github.com/ValentinML525/ingsoft3-tp01/actions/runs/40217586849 — artefactos `playwright-report-integracion` (verde) y `playwright-report-e2e` (rojo, con screenshot y traza). Los artefactos de Actions vencen; copia permanente de los dos en la release `v7.0.0`: https://github.com/ValentinML525/ingsoft3-tp01/releases/download/v7.0.0/playwright-report-integracion.zip · https://github.com/ValentinML525/ingsoft3-tp01/releases/download/v7.0.0/playwright-report-e2e.zip |
 | **Corrida completa en verde** hasta PROD (arreglo, PR #34) | https://github.com/ValentinML525/ingsoft3-tp01/actions/runs/40218946441 |
 | **Release `v7.0.0`** | https://github.com/ValentinML525/ingsoft3-tp01/releases/tag/v7.0.0 |
 | **QA** (front / api) | https://miapp-front-qa-r825.onrender.com · https://ingsoft3-tp01-qa.onrender.com |
@@ -35,7 +42,7 @@ El monitor de UptimeRobot (con su DOWN y su UP) y Sentry se muestran en vivo en 
 
 Los *Events* de Render no son públicos: los muestro en vivo en la defensa (cada servicio dice «Triggered via Deploy Hook» y nombra el `sha-<commit>` de la corrida). Lo demás se navega desde el repo: *Actions*, *Deployments*, *Packages* y *Releases*.
 
-# Enlaces de este TP (TP6 — CD: environments, aprobaciones y deployment patterns)
+# Enlaces del TP6 (CD: environments, aprobaciones y deployment patterns)
 
 | Qué | Enlace |
 |---|---|
@@ -720,6 +727,7 @@ Es la misma imagen: lo único que las distingue son **variables del servicio**. 
 - **Secrets en el lugar equivocado:** cargué `QA_BACKEND_API_KEY`, `E2E_EMAIL` y `E2E_PASSWORD` como secrets del *environment* `qa`, pero los jobs `integracion` y `e2e` no declaran environment, así que sólo ven los de repositorio. La integración dio `401` y la e2e quedó salteada (el gate funcionando). Los cargué en el repositorio y re-corrí los jobs fallidos.
 - **`/api/seed` respondió `500` en QA:** su último paso (reservas de ejemplo) llama a la api por `BACKEND_URL`, que en Render no apunta al puerto correcto; los usuarios, propiedades y unidades ya estaban creados (no es transaccional) y alcanzó. Además descubrí que `/api/seed` **no pide API key y borra toda la base**: cualquiera puede vaciar PROD. Queda como deuda a proteger.
 - **Un flaky** en la primera corrida completa (ver punto 8).
+- **Los reportes de Playwright vencían a los 7 días** (`retention-days: 7`) y los enlaces de la corrida roja iban a quedar muertos antes de la defensa. Subí la retención a 90 días y adjunté los dos reportes de esa corrida a la release `v7.0.0`.
 
 ## 12. Declaración de uso de IA
 
@@ -758,7 +766,7 @@ Leí el changelog de la v4: pasa al runtime de Node 24 (los runners de GitHub ya
 
 ## Qué mostró el monitor y qué mostró Sentry
 
-- **Detección de la caída:** suspendí `api-prod` a las **11:49** y el monitor me avisó **DOWN a las 11:53**: **4 minutos** (el intervalo del plan gratuito es de 5). Reanudé a las **11:54** y el aviso **UP** llegó a las **00:08**: **14 minutos** después. Sin el monitor me habría enterado cuando un usuario avisara, sin hora ni tope.
+- **Detección de la caída:** suspendí `api-prod` a las **11:49** y el monitor me avisó **DOWN a las 11:53**: **4 minutos** (el intervalo del plan gratuito es de 5). Reanudé a las **11:54** y el aviso **UP** llegó a las **12:08**: **14 minutos** después. Sin el monitor me habría enterado cuando un usuario avisara, sin hora ni tope.
 - **Operación más usada:** `GET /api/auth/[...nextauth]` (la consulta de sesión de NextAuth), con **26 pedidos**; entre las pantallas, `GET /auth/login` (22). Entre los datos de la api, `unidades/disponibles`, `unidades/[id]` y `ubicaciones/todas` (12 cada una).
 - **Operación más lenta:** en términos absolutos `GET /api/seed` (**P95 35,3 s**), pero es la carga de datos que corrí yo a mano. La más lenta de **uso real** es `GET /api/unidades/disponibles`: **P95 3,8 s** sobre 12 pedidos (P75 781 ms, P90 3,7 s). De ese dato nació la tarjeta del tablero (#68): optimizarla y volver a medir.
 - **Un error visto en Sentry:** «Falla de prueba del TP9», 9 eventos, de un endpoint temporal (`/api/falla`) que ya saqué del código.
