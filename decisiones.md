@@ -52,6 +52,7 @@ Los *Events* de Render no son públicos: los muestro en vivo en la defensa (cada
 | Cadena 2 — **lista de pasos de una corrida de `main`**, «Construir y publicar la imagen» último | https://github.com/ValentinML525/ingsoft3-tp01/actions/runs/40150161198/job/121039842733 (job `build-backend` de la corrida de `main` del merge #27: «Construir y publicar la imagen del backend» es el paso 10, el último antes de los `Post …`) |
 | **QA** (front / api) | https://miapp-front-qa-r825.onrender.com · https://ingsoft3-tp01-qa.onrender.com |
 | **PROD** (front / api) | https://miapp-front-prod-2m9z.onrender.com · https://miapp-api-prod-8pbo.onrender.com |
+| **Rechazo con motivo** de un deploy a PROD | https://github.com/ValentinML525/ingsoft3-tp01/actions/runs/40266945467 — merge del PR #70. Motivo: «el commit 5507107 solo cambia `decisiones.md` y `retention-days` en `ci.yml`; la imagen `sha-5507107` no trae ningún cambio de la app. Integración y e2e dieron verde en QA, pero no hay nada nuevo que llevar a PROD y desplegarla sacaría a PROD del commit `5b3e6c0` de la release `v9.0.0`». |
 
 Lo demás se navega desde el repo: *Actions* (deploys, smoke, `Waiting for review`, aprobación y rechazo), *Deployments* (qué commit está en cada entorno) y *Releases* (`v6.0.0`).
 
