@@ -20,7 +20,7 @@ jobs:
         run: echo "Rama $RAMA · commit $GITHUB_SHA"
 
       - name: Bajar el código al runner
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Preparar el constructor que sabe cachear
         uses: docker/setup-buildx-action@v4
@@ -97,7 +97,7 @@ jobs:
         run: echo "Rama $RAMA · commit $GITHUB_SHA"
 
       - name: Bajar el código al runner
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Preparar el constructor que sabe cachear
         uses: docker/setup-buildx-action@v4
@@ -174,7 +174,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Bajar el código al runner (migraciones y smoke)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       # El esquema lo crean las migraciones de Prisma del repo, no el arranque de la app.
       # Antes del deploy: el código nuevo arranca contra una base que ya tiene su esquema.
@@ -219,7 +219,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Bajar el código al runner
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Preparar Node
         uses: actions/setup-node@v4
@@ -255,7 +255,7 @@ jobs:
     timeout-minutes: 20                       # si algo se cuelga, el job muere en vez de esperar horas
     steps:
       - name: Bajar el código al runner
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Preparar Node
         uses: actions/setup-node@v4
@@ -297,7 +297,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Bajar el código al runner (migraciones y smoke)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Aplicar migraciones a la base de PROD
         env:
